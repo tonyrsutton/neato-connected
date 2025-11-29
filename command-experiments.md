@@ -23,7 +23,9 @@ I have now tested that you can send commands while reciving data and that the ro
 2. GetDigitalSensors    (bumper, dustbin & pickup)
 3. GetAnalogSensors     (drop-, mag- and wall-sensor)
 4. GetLdsScan           (lidar)
-5. Repeat
+- Repeat
+
+`GetMotor` can be used to get current speed and distance traveled from an 0,0 point, however, since we will be setting the speed with the `SetMotor` commands, we already know what the speed is, and the direction we can calculate based what wheel (and its rpm) is spinning.
 
 GetState will no longer be needed as we will be in TestMode so this will always be `UIMGR_STATE_TESTMODE`.
 
@@ -45,7 +47,6 @@ GetState will no longer be needed as we will be in TestMode so this will always 
 [02:16:45.223][D][uart_debug:158]: <<< "RLDSBIT,0\r\n"
 
 
-
 [02:17:58.028][D][uart_debug:158]: <<< "GetAnalogSensors\r\n"
 [02:17:58.028][D][uart_debug:158]: <<< "SensorName,Unit,Value\r\n"
 [02:17:58.028][D][uart_debug:158]: <<< "BatteryVoltage,mV,14585,\r\n"
@@ -64,5 +65,20 @@ GetState will no longer be needed as we will be in TestMode so this will always 
 [02:17:58.200][D][uart_debug:158]: <<< "DropSensorRight,mm,19,\r\n"
 
 
-
+[02:44:43.617][D][uart_debug:158]: <<< "GetMotor\r\n"
+[02:44:43.632][D][uart_debug:158]: <<< "Parameter,Value\r\n"
+[02:44:43.645][D][uart_debug:158]: <<< "Brush_RPM,0\r\n"
+[02:44:43.659][D][uart_debug:158]: <<< "Brush_mA,0\r\n"
+[02:44:43.673][D][uart_debug:158]: <<< "Vacuum_RPM,0\r\n"
+[02:44:43.686][D][uart_debug:158]: <<< "Vacuum_mA,0\r\n"
+[02:44:43.701][D][uart_debug:158]: <<< "LeftWheel_RPM,0\r\n"
+[02:44:43.715][D][uart_debug:158]: <<< "LeftWheel_Load%,0\r\n"
+[02:44:43.730][D][uart_debug:158]: <<< "LeftWheel_PositionInMM,-365\r\n"
+[02:44:43.742][D][uart_debug:158]: <<< "LeftWheel_Speed,0\r\n"
+[02:44:43.757][D][uart_debug:158]: <<< "RightWheel_RPM,0\r\n"
+[02:44:43.768][D][uart_debug:158]: <<< "RightWheel_Load%,0\r\n"
+[02:44:43.784][D][uart_debug:158]: <<< "RightWheel_PositionInMM,-365\r\n"
+[02:44:43.802][D][uart_debug:158]: <<< "RightWheel_Speed,0\r\n"
+[02:44:43.812][D][uart_debug:158]: <<< "ROTATION_SPEED,0.00\r\n"
+[02:44:43.830][D][uart_debug:158]: <<< "SideBrush_mA,0\r\n"
 
