@@ -16,6 +16,8 @@ I will need to do more experimatation on this part; but this is a command to dri
 
 Stop the wheels: `SetMotor LWheelDisable RWheelDisable`
 
+You can at any time can the speed by sending a new command, stopping the motors can be done as stated with the disable commands, but then you need to enable them again. A faster way would be to just set the distance to 1mm. You cannot the the values to 0, those are ignored.
+
 Also, sometimes the robot says something about that it won't fall for that again (forgot to copy the message...), not exactly sure what causes it, I think it has to do if you try to send multiple commands on the same line or something? but will need to look into that I guess?
 
 I have now tested that you can send commands while reciving data and that the robot will execute them, it does do so. However I have a small problem, via esphome the `GetLdsScan` crashes my esp when the delimiter is set to the endbyte sent by the robot `\x1A`, it works when setting a line by line reading, so if the fully custom solution does come, then it would not be via esphome. Since the LDS scan takes a while to arrive, at least via the esphome console but that does however go via my ha and network, it was quite a lot faster via direct serial connection, but we would still need to queue the commands, something like like:

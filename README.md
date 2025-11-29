@@ -37,9 +37,15 @@ The UserSettings thing is a little wierd for me, even when I toggle them, they d
 
 Currently a work in progress, currently it looks like this:
 
+
+![dashboard](./pics/esphome/ha-hashboard.png)
+
+
 ![controls](./pics/esphome/controls.png)
 ![sensors](./pics/esphome/sensors.png)
 ![diagnostic](./pics/esphome/diagnostic.png)
+
+Not everything is done yet, and of course I am very welcome to feedback! There is some slight quirks with the serial debug port, at least on the firmware `3.2.0` (I will soon have my OTG cable so I can test on the latest). If I stop a cleaning with `Clean Stop` the robot goes into a "Stop" state and it is a little tricky to get out of this state, you can either press the button on the robot OR send `SetSystemMode PowerCycle/Hibernate`. The robot does not really have a state for this, so not exactly sure how to "solve it", but I think I will listen to shen you send the "stop" command and this will then then send the command to get out of this state too, once again, needs some more experimenting!
 
 You can also send commands via an action and play sounds via an soundid. I gets errors and state every 2 sec, info about charger/battery every 30 sec and testmode/version is still a work in progress, but should work kinda? GetVerion happens when the esphome boots, but because esphome would boot before the robot, if the esphome does not restart or you send the command manually, it will say "Unavailable"
 

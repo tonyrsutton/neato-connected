@@ -1,0 +1,176 @@
+button_card_templates:
+  neato_base:
+    variables:
+      .device: SET_THIS_TO_YOU_DEVICE_ID
+      alert_color: '#edb926'
+      error_color: '#950606'
+      battery_level: >-
+        [[[ return
+        states[`sensor.${variables[".device"]}_fuel_percent_2`]?.state; ]]]
+      charging: >-
+        [[[ return
+        states[`binary_sensor.${variables[".device"]}_charging_active`]?.state
+        === "on"; ]]]
+      alert_id: '[[[ return `sensor.${variables[".device"]}_robot_alert`; ]]]'
+      _alert: '[[[  return states[variables.alert_id]?.state;  ]]]'
+      error_id: '[[[ return `sensor.${variables[".device"]}_robot_error`; ]]]'
+      current_state_id: '[[[ return `sensor.${variables[".device"]}_current_state`; ]]]'
+views:
+  - title: Home
+    sections:
+      - type: grid
+        cards:
+          - type: vertical-stack
+            cards:
+              - type: custom:button-card
+                template: neato_base
+                icon: mdi:robot-vacuum-variant
+                entity: '[[[  return variables.error_id  ]]]'
+                size: 50%
+                color_type: icon
+                show_name: false
+                tap_action:
+                  action: none
+                hold_action:
+                  action: none
+                double_tap_action:
+                  action: none
+                styles:
+                  icon:
+                    - color: |
+                        [[[
+                            if (!entity.state.startsWith('200')) return variables.error_color
+                            if (!states[variables.alert_id]?.state?.startsWith('200')) return variables.alert_color
+                        ]]]
+                  card:
+                    - border-radius: 20px
+                    - display: flex
+                    - justify-content: center
+                    - align-items: center
+                    - margin: 0 auto
+                    - position: relative
+                  custom_fields:
+                    battery:
+                      - position: absolute
+                      - top: 8px
+                      - right: 8px
+                      - padding: 4px 8px
+                      - border-radius: 8px
+                      - font-weight: bold
+                      - background-color: |
+                          [[[
+                            console.log(variables)
+                            if (Number(variables.battery_level) > 35) return 'green';
+                            else return '#FFBF00'
+                          ]]]
+                custom_fields:
+                  battery: '[[[ return variables.battery_level + ''%'' ]]]'
+                extra_styles: |
+                  @keyframes pulseGreen {
+                      0% {
+                        box-shadow: 0 0 5px 0 rgba(0,255,0,0.6);
+                      }
+                      50% {
+                        box-shadow: 0 0 20px 6px rgba(0,255,0,1);
+                      }
+                      100% {
+                        box-shadow: 0 0 5px 0 rgba(0,255,0,0.6);
+                      }
+                  }
+              - type: vertical-stack
+                cards:
+                  - type: custom:button-card
+                    template: neato_base
+                    entity: '[[[ return variables.current_state_id  ]]]'
+                    show_icon: false
+                    show_name: true
+                    name: |
+                      [[[
+                        if (entity.state.includes('STATE_IDLE')) return "IDLE";
+                        else if (entity.state.includes('STATE_STANDBY')) return "STANDBY";
+                        else if (entity.state.includes('STATE_HOUSECLEANINGPAUSED')) return "House Cleaning Paused";
+                        else if (entity.state.includes('STATE_HOUSECLEANINGRUNNING')) return "Cleaning House";
+                        else if (entity.state.includes('STATE_STARTHOUSECLEANING')) return "Starting House Cleaning";
+                        else return entity.state
+                      ]]]
+                  - type: horizontal-stack
+                    cards:
+                      - type: custom:button-card
+                        template: neato_base
+                        show_icon: false
+                        entity: '[[[  return variables.alert_id  ]]]'
+                        show_state: false
+                        styles:
+                          card:
+                            - border-color: |
+                                [[[
+                                  if (entity.state.startsWith('200')) return ""
+                                  else return variables.alert_color
+                                ]]]
+                        name: |
+                          [[[
+                            if (entity.state.startsWith('200')) return "No Alerts"
+                            else if (entity.state.startsWith('236')) return "Dust Bin Emptied"
+                            else return entity.state
+                          ]]]
+                      - type: custom:button-card
+                        template: neato_base
+                        show_icon: false
+                        entity: '[[[  return variables.error_id  ]]]'
+                        show_state: false
+                        styles:
+                          card:
+                            - border-color: |
+                                [[[
+                                  if (entity.state.startsWith('200')) return ""
+                                  else return variables.error_color
+                                ]]]
+                        name: |
+                          [[[
+                            if (entity.state.startsWith('200')) return "No Errors"
+                            else if (entity.state.startsWith('237')) return "Dust Bin Missing"
+                            else if (entity.state.startsWith('243')) return "Picked up"
+                            else if (entity.state.startsWith('249')) return "Lidar error"
+                            else return entity.state
+                          ]]]
+              - type: horizontal-stack
+                cards:
+                  - type: custom:button-card
+                    template: neato_base
+                    entity: >-
+                      [[[  return `button.${variables[".device"]}_house_clean` 
+                      ]]]
+                    name: Clean
+                    tap_action:
+                      action: toggle
+                  - type: custom:button-card
+                    template: neato_base
+                    entity: >-
+                      [[[  return `button.${variables[".device"]}_spot_clean` 
+                      ]]]
+                    name: Clean
+                    tap_action:
+                      action: toggle
+                  - type: custom:button-card
+                    template: neato_base
+                    entity: >-
+                      [[[  return
+                      `button.${variables[".device"]}_pause_cleaning`  ]]]
+                    name: Pause
+                    tap_action:
+                      action: toggle
+                  - type: custom:button-card
+                    template: neato_base
+                    entity: >-
+                      [[[  return `button.${variables[".device"]}_locate_robot` 
+                      ]]]
+                    name: Locate
+                    tap_action:
+                      action: toggle
+                  - type: custom:button-card
+                    name: Settings
+                    icon: mdi:cog
+                    tap_action:
+                      action: toggle
+    type: sections
+    cards: []
