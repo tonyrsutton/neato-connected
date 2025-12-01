@@ -1,8 +1,10 @@
 type: vertical-stack
 cards:
   - type: custom:button-card
+    variables:
+      robot_id: REPLACE_WITH_DEVICE_ID
     icon: mdi:robot-vacuum-variant
-    entity: sensor.REPLACE_WITH_ENTITY_ID_robot_error
+    entity: '[[[ return `sensor.${variables.robot_id}_robot_error`; ]]]'
     size: 50%
     color_type: icon
     tap_action:
@@ -12,21 +14,24 @@ cards:
     double_tap_action:
       action: none
     name: |
-      [[[
-        const uiState = states['sensor.REPLACE_WITH_ENTITY_ID_ui_state']?.state;
-        if (uiState.includes('STATE_IDLE')) return "IDLE";
-        else if (uiState.includes('STATE_STANDBY')) return "STANDBY";
-        else if (uiState.includes('STATE_HOUSECLEANINGPAUSED')) return "House Cleaning Paused";
-        else if (uiState.includes('STATE_HOUSECLEANINGRUNNING')) return "Cleaning House";
-        else if (uiState.includes('STATE_STARTHOUSECLEANING')) return "Starting House Cleaning";
-        else return uiState
+      [[[ 
+        const uiState = states[`sensor.${variables.robot_id}_ui_state`]?.state || '';
+        if (uiState.includes('STATE_IDLE')) return 'IDLE';
+        else if (uiState.includes('STATE_STANDBY')) return 'STANDBY';
+        else if (uiState.includes('STATE_HOUSECLEANINGPAUSED')) return 'House Cleaning Paused';
+        else if (uiState.includes('STATE_HOUSECLEANINGRUNNING')) return 'Cleaning House';
+        else if (uiState.includes('STATE_STARTHOUSECLEANING')) return 'Starting House Cleaning';
+        else return uiState || 'Unknown';
       ]]]
     styles:
       icon:
         - color: |
-            [[[
-                if (!entity.state.startsWith('200')) return "#950606";
-                else if (!states["sensor.REPLACE_WITH_ENTITY_ID_robot_alert"]?.state?.startsWith('200')) return "#edb926";
+            [[[ 
+              const err = states[`sensor.${variables.robot_id}_robot_error`]?.state || '';
+              const alert = states[`sensor.${variables.robot_id}_robot_alert`]?.state || '';
+              if (!err.startsWith('200')) return '#950606';
+              else if (!alert.startsWith('200')) return '#edb926';
+              else return '#00cc00';
             ]]]
       card:
         - border-radius: 20px
@@ -45,13 +50,14 @@ cards:
           - font-weight: bold
           - animation: |
               [[[ 
-                return states['binary_sensor.REPLACE_WITH_ENTITY_ID_charging_active']?.state === "on" ? 'pulseGreen 3s infinite' : ''
+                return states[`binary_sensor.${variables.robot_id}_charging_active`]?.state === 'on'
+                  ? 'pulseGreen 3s infinite'
+                  : '';
               ]]]
           - background-color: |
-              [[[
-                console.log(variables)
-                if (Number(states["sensor.REPLACE_WITH_ENTITY_ID_fuel_percent"]?.state) > 35) return 'green';
-                else return '#FFBF00'
+              [[[ 
+                const pct = Number(states[`sensor.${variables.robot_id}_fuel_percent`]?.state);
+                return pct > 35 ? 'green' : '#FFBF00';
               ]]]
         dock:
           - position: absolute
@@ -61,19 +67,20 @@ cards:
           - border-radius: 8px
           - background-color: rgba(255,255,255,0.2)
           - display: |
-              [[[
-                return states['binary_sensor.REPLACE_WITH_ENTITY_ID_ext_power_present']?.state === "on"
-                  ? "block"
-                  : "none";
+              [[[ 
+                return states[`binary_sensor.${variables.robot_id}_ext_power_present`]?.state === 'on'
+                  ? 'block'
+                  : 'none';
               ]]]
     custom_fields:
       battery: >-
-        [[[ return states["sensor.REPLACE_WITH_ENTITY_ID_fuel_percent"]?.state + '%'
+        [[[ 
+          const v = states[`sensor.${variables.robot_id}_fuel_percent`]?.state;
+          return (v ?? '0') + '%';
         ]]]
       dock: |
-        [[[
-          // Show an icon if docked
-          if (states['binary_sensor.REPLACE_WITH_ENTITY_ID_ext_power_present']?.state === 'on') {
+        [[[ 
+          if (states[`binary_sensor.${variables.robot_id}_ext_power_present`]?.state === 'on') {
             return 'DOCKED';
           } else {
             return 'sdfsdf';
@@ -81,79 +88,90 @@ cards:
         ]]]
     extra_styles: |
       @keyframes pulseGreen {
-          0% {
-            box-shadow: 0 0 5px 0 rgba(0,255,0,0.6);
-          }
-          50% {
-            box-shadow: 0 0 20px 6px rgba(0,255,0,1);
-          }
-          100% {
-            box-shadow: 0 0 5px 0 rgba(0,255,0,0.6);
-          }
+        0%   { box-shadow: 0 0 5px 0 rgba(0,255,0,0.6); }
+        50%  { box-shadow: 0 0 20px 6px rgba(0,255,0,1); }
+        100% { box-shadow: 0 0 5px 0 rgba(0,255,0,0.6); }
       }
+
   - type: vertical-stack
     cards:
       - type: horizontal-stack
         cards:
           - type: custom:button-card
+            variables:
+              robot_id: REPLACE_WITH_DEVICE_ID
             show_icon: false
-            entity: sensor.REPLACE_WITH_ENTITY_ID_robot_alert
+            entity: '[[[ return `sensor.${variables.robot_id}_robot_alert`; ]]]'
             show_state: false
             styles:
               card:
                 - border-color: |
-                    [[[
-                      if (entity.state.startsWith('200')) return ""
-                      else return "#edb926"
+                    [[[ 
+                      const alert = states[`sensor.${variables.robot_id}_robot_alert`]?.state || '';
+                      return alert.startsWith('200') ? '' : '#edb926';
                     ]]]
             name: |
-              [[[
-                if (entity.state.startsWith('200')) return "No alerts";
-                // If it does not match this regex perfectly, then return as it is
-                try { return entity.state.match(/\(UI_(ERROR|ALERT)_(.+)\)/)[2].replaceAll('_', ' ') }
-                catch { return entity.state }
+              [[[ 
+                const alert = states[`sensor.${variables.robot_id}_robot_alert`]?.state || '';
+                if (alert.startsWith('200')) return 'No alerts';
+                try { return alert.match(/\(UI_(ERROR|ALERT)_(.+)\)/)[2].replaceAll('_',' '); }
+                catch { return alert; }
               ]]]
+
           - type: custom:button-card
+            variables:
+              robot_id: REPLACE_WITH_DEVICE_ID
             show_icon: false
-            entity: sensor.REPLACE_WITH_ENTITY_ID_robot_error
+            entity: '[[[ return `sensor.${variables.robot_id}_robot_error`; ]]]'
             show_state: false
             styles:
               card:
                 - border-color: |
-                    [[[
-                      if (entity.state.startsWith('200')) return ""
-                      else return "#950606"
+                    [[[ 
+                      const err = states[`sensor.${variables.robot_id}_robot_error`]?.state || '';
+                      return err.startsWith('200') ? '' : '#950606';
                     ]]]
             name: |
-              [[[
-                if (entity.state.startsWith('200')) return "No errors";
-                // If it does not match this regex perfectly, then return as it is
-                try { return entity.state.match(/\(UI_(ERROR|ALERT)_(.+)\)/)[2].replaceAll('_', ' ') }
-                catch { return entity.state }
+              [[[ 
+                const err = states[`sensor.${variables.robot_id}_robot_error`]?.state || '';
+                if (err.startsWith('200')) return 'No errors';
+                try { return err.match(/\(UI_(ERROR|ALERT)_(.+)\)/)[2].replaceAll('_',' '); }
+                catch { return err; }
               ]]]
+
   - type: horizontal-stack
     cards:
       - type: custom:button-card
-        entity: button.REPLACE_WITH_ENTITY_ID_house_clean
+        variables:
+          robot_id: REPLACE_WITH_DEVICE_ID
+        entity: '[[[ return `button.${variables.robot_id}_house_clean`; ]]]'
         name: Clean
         tap_action:
           action: toggle
       - type: custom:button-card
-        entity: button.REPLACE_WITH_ENTITY_ID_spot_clean
-        name: Clean
+        variables:
+          robot_id: REPLACE_WITH_DEVICE_ID
+        entity: '[[[ return `button.${variables.robot_id}_spot_clean`; ]]]'
+        name: Spot Clean
         tap_action:
           action: toggle
       - type: custom:button-card
-        entity: button.REPLACE_WITH_ENTITY_ID_stop_cleaning
+        variables:
+          robot_id: REPLACE_WITH_DEVICE_ID
+        entity: '[[[ return `button.${variables.robot_id}_stop_cleaning`; ]]]'
         name: STOP
         tap_action:
           action: toggle
       - type: custom:button-card
-        entity: button.REPLACE_WITH_ENTITY_ID_locate_robot
+        variables:
+          robot_id: REPLACE_WITH_DEVICE_ID
+        entity: '[[[ return `button.${variables.robot_id}_locate_robot`; ]]]'
         name: Locate
         tap_action:
           action: toggle
       - type: custom:button-card
+        variables:
+          robot_id: REPLACE_WITH_DEVICE_ID
         name: Settings
         icon: mdi:cog
         tap_action:
@@ -170,72 +188,72 @@ cards:
                     cards:
                       - show_name: true
                         show_icon: true
-                        entity: switch.REPLACE_WITH_ENTITY_ID_eco_mode
+                        entity: '[[[ return `switch.${variables.robot_id}_eco_mode`; ]]]'
                         name: ECO Mode
                         type: button
                       - show_name: true
                         show_icon: true
-                        entity: switch.REPLACE_WITH_ENTITY_ID_test_mode
+                        entity: '[[[ return `switch.${variables.robot_id}_test_mode`; ]]]'
                         name: Test Mode
                         type: button
-                      - entity: button.REPLACE_WITH_ENTITY_ID_update_status
+                      - entity: '[[[ return `button.${variables.robot_id}_update_status`; ]]]'
                         name: Fetch status
                         show_icon: true
                         type: button
                         tap_action:
                           action: toggle
-                      - entity: binary_sensor.REPLACE_WITH_ENTITY_ID_usb_connected
+                      - entity: '[[[ return `binary_sensor.${variables.robot_id}_usb_connected`; ]]]'
                         name: USB
                         show_icon: true
                         type: button
                   - type: entities
                     entities:
-                      - entity: switch.REPLACE_WITH_ENTITY_ID_intenseclean
+                      - entity: '[[[ return `switch.${variables.robot_id}_intenseclean`; ]]]'
                         name: Intense Clean
-                      - entity: switch.REPLACE_WITH_ENTITY_ID_led
+                      - entity: '[[[ return `switch.${variables.robot_id}_led`; ]]]'
                         name: LED
-                      - entity: switch.REPLACE_WITH_ENTITY_ID_wifi
+                      - entity: '[[[ return `switch.${variables.robot_id}_wifi`; ]]]'
                         name: WiFi
-                      - entity: switch.REPLACE_WITH_ENTITY_ID_melody_sounds
+                      - entity: '[[[ return `switch.${variables.robot_id}_melody_sounds`; ]]]'
                         name: Melody Sounds
-                      - entity: switch.REPLACE_WITH_ENTITY_ID_warning_sounds
+                      - entity: '[[[ return `switch.${variables.robot_id}_warning_sounds`; ]]]'
                         name: Warning Sounds
-                      - entity: switch.REPLACE_WITH_ENTITY_ID_click_sounds
+                      - entity: '[[[ return `switch.${variables.robot_id}_click_sounds`; ]]]'
                         name: Click Sounds
-                      - entity: switch.REPLACE_WITH_ENTITY_ID_bin_full_detect
+                      - entity: '[[[ return `switch.${variables.robot_id}_bin_full_detect`; ]]]'
                         name: Bin Full Detect
-                      - entity: switch.REPLACE_WITH_ENTITY_ID_schedule
+                      - entity: '[[[ return `switch.${variables.robot_id}_schedule`; ]]]'
                         name: Schedule
                     state_color: false
                     show_header_toggle: false
                   - type: entities
                     entities:
-                      - entity: sensor.REPLACE_WITH_ENTITY_ID_model
+                      - entity: '[[[ return `sensor.${variables.robot_id}_model`;]]]'
                         name: Model
-                      - entity: sensor.REPLACE_WITH_ENTITY_ID_serial_number
+                      - entity: '[[[ return `sensor.${variables.robot_id}_serial_number`;]]]'
                         name: S/N
-                      - entity: sensor.REPLACE_WITH_ENTITY_ID_time_local
+                      - entity: '[[[ return `sensor.${variables.robot_id}_time_local`;]]]'
                         name: Robot Time
-                      - entity: sensor.REPLACE_WITH_ENTITY_ID_battery_voltage_v
+                      - entity: '[[[ return `sensor.${variables.robot_id}_voltage_v`;]]]'
                         name: Battery Voltage
-                      - entity: sensor.REPLACE_WITH_ENTITY_ID_battery_temp_c_avg
+                      - entity: '[[[ return `sensor.${variables.robot_id}_battery_temp_c_avg`;]]]'
                         name: Battery Temp (avg)
-                      - entity: sensor.REPLACE_WITH_ENTITY_ID_charger_mah
+                      - entity: '[[[ return `sensor.${variables.robot_id}_charger_mah`;]]]'
                         name: Charging
-                      - entity: sensor.REPLACE_WITH_ENTITY_ID_discharge_mah
+                      - entity: '[[[ return `sensor.${variables.robot_id}_discharge_mah`;]]]'
                         name: Discharging
                   - type: horizontal-stack
                     cards:
                       - show_name: true
                         show_icon: true
-                        entity: button.REPLACE_WITH_ENTITY_ID_shutdown
+                        entity: '[[[ return `button.${variables.robot_id}_shutdown`;]]]'
                         type: button
                         name: Power Off
                         tap_action:
                           action: toggle
                       - show_name: true
                         show_icon: true
-                        entity: button.REPLACE_WITH_ENTITY_ID_powercycle
+                        entity: '[[[ return `button.${variables.robot_id}_powercycle`;]]]'
                         name: Reboot Robot
                         type: button
                         tap_action:
@@ -243,7 +261,7 @@ cards:
                       - show_name: true
                         show_icon: true
                         type: button
-                        entity: button.REPLACE_WITH_ENTITY_ID_reboot_esp
+                        entity: '[[[ return `button.${variables.robot_id}_reboot_esp`;]]]'
                         name: Reboot ESP
                         tap_action:
                           action: toggle
