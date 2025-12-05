@@ -31,30 +31,32 @@ Follow these instructions to install the ESP you have flashed the [esphome firmw
 7. Remove the bumper by pulling it off.
 4. Remove the 2 Philips screws marked yellow in the image below and open the battery compartment. Remove the battery and leave it unplugged into told to plug it back in.
 5. Remove the 6 Torx screws red marked in the image below. You will need a long T10 Torx bit for that.
-![Neato robot on its back. Screws to remove are marked](installation/1-removing-screws.jpg "Remove these screws")
+![Neato robot on its back. Screws to remove are marked](pics/installation/1-removing-screws.jpg "Remove these screws")
 6. Turn the robot back over so you can see space where the dust bin normally sits.
 7. Pull of the top cover by pushing the two tabs at the front out of the way.
 8. Double check again that you've removed the battery before continuing. There should be no LEDs on at this point.
 9. Install the JST-XH cable on the connector on the front-left of the board and then run the wire up tightly across the board, under some other wires, to the right of the board.
-![Close-up of Neato board with JST-XH connector and wire installed](installation/2-install-JST-XH.jpg "Installing the JST-XH cable")
+![Close-up of Neato board with JST-XH connector and wire installed](pics/installation/2-install-JST-XH.jpg "Installing the JST-XH cable")
 13. Find a place for your ESP. It normally fits in the space to the right of the main board.
 10. Run the wires up/under existing wires as needed so they don't stick out. It's ok to cut extra wire.
 11. Add Dupont connectors to the four wires.
-12. Connect the wires to the ESP, making sure you make the right connections. From left to right looking at the front of the board the wires need to be connected this way: 
+12. Connect the wires to the ESP, making sure you make the right connections. From left to right looking at the front of the board the wires need to be connected this way:
+
 | Board | ESP |
 |---|---|
 |RX|TX|
 |3.3V|VCC / 3.3V|
 |TX|RX|
 |GND|GND|
-![Neato board with serial connections indicated](installation/3-connections.jpg "Making the connections to the ESP")
+
+![Neato board with serial connections indicated](pics/installation/3-connections.jpg "Making the connections to the ESP")
 14. Wrap your ESP in masking tape / Kapton tape to prevent shorts. Also make sure to secure the connections to the ESP as there will be a lot of vibration. Either include them in the tape wrap or use some hot glue.
-![ESP installed and taped](installation/4-installed-and-taped.png "Installing and taping the ESP")
+![ESP installed and taped](pics/installation/4-installed-and-taped.jpg "Installing and taping the ESP")
 15. Use some electrical tape on the Neato enclosure across the JST-XH cable wires to secure them.
-![Closeup of JST-XH cable with electrical tape on plastic enclosure](installation/5-electrical-tape-1.jpg "Securing JST-XH cable")
+![Closeup of JST-XH cable with electrical tape on plastic enclosure](pics/installation/5-electrical-tape-1.jpg "Securing JST-XH cable")
 16. Put back the top cover. Don't turn Neato over just yet.
 17. Add another round of electrical tape to further secure the JST-XH cable.
-![Closeup of Neato with electrical tape on plastic enclosure](installation/6-electrical-tape-2.jpg "Securing JST-XH cable once more")
+![Closeup of Neato with electrical tape on plastic enclosure](pics/installation/6-electrical-tape-2.jpg "Securing JST-XH cable once more")
 18. Now, turn Neato back over and put back the 6 Torx screws your removed.
 19. Reconnect battery and close battery compartment.
 20. Turn Neato on and enjoy!
