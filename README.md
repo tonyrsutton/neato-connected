@@ -74,9 +74,9 @@ If your firmware version is not `4.5.3` then you will need to update to the late
 
 ## Step 2
 
-We need to install certain plugins and addons to the home assistant installation to use all the features of this project.
+We need to install certain add-ons to the home assistant installation to use all the features of this project.
 
-### Home assistant plugins
+### Home assistant add-ons
 Donwload the "Esphome" plugin from Setting --> Add-ons --> Add-on Store --> install the "ESPHome Device Builder"
 
 ### HACS
@@ -106,7 +106,7 @@ Once you have filled this file with your values, save it, and make sure to never
 If you want to add more devices, best practice is to set the api key and ota password in your secrets file. Your wifi password and ssid should also be kept here. Since the esp device will be strapped to, or inside the robot OTA (over the air) updates is quite important for this use case.
 
 ### Config file
-Once back at the ESPHome main page, click the big green button in the bottom left to add a new device. Read the information, but for now, click "Continue" and either import the [`neato_vacuum.yaml`](..) file, or start with an empty configuration.
+Once back at the ESPHome main page, click the big green button in the bottom left to add a new device. Read the information, but for now, click "Continue" and either import the [`neato_vacuum.yaml`](./neato_vacuum.yaml) file, or start with an empty configuration.
 
 **The following two steps might be hard to do, feel free to ask for help in the discord or discussions.**
 
@@ -129,13 +129,11 @@ Now you will need to connect to the robot over it's serial debug port.
 To verify that everything works, either if you just want to try this out, or test what pins you can use before making a permanent installation you should take the bumper off and connect to the debug pins directly.
 ![debug-port-with-cables](./pics/d3/debug-port-with-cables.jpg)
 
-Connect like this: TX-RX (pin you picked), RX-TX (pin you picked), 3.3V to 3.3V, GND to GND.
-
 | Robot | ESP |
 |---|---|
-|RX|TX|
+|RX|TX (pin you picked)|
 |3.3V|VCC / 3.3V|
-|TX|RX|
+|TX|RX (pin you picked)|
 |GND|GND|
 
 
