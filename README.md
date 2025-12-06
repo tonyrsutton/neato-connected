@@ -119,7 +119,7 @@ Once you have filled this file with your values, save it, and make sure to never
 If you want to add more devices, best practice is to set the api key and ota password in your secrets file. Your wifi password and ssid should also be kept here. Since the esp device will be strapped to, or inside the robot OTA (over the air) updates is quite important for this use case.
 
 ### Config file
-Once back at the ESPHome main page, click the big green button in the bottom left to add a new device. Read the information, but for now, click "Continue" and either import the [`neato_vacuum.yaml`](./neato_vacuum.yaml) file, or start with an empty configuration.
+Once back at the ESPHome main page, click the big green button in the bottom left to add a new device. Read the information, but for now, click "Continue" and either import the [`neato_vacuum.yaml`](https://github.com/philip2809/neato-connected/releases/latest/download/neato_vacuum.yaml) file, or start with an empty configuration.
 
 **The following two steps might be hard to do, feel free to ask for help in the discord or discussions.**
 
@@ -157,7 +157,7 @@ Once you are ready for the permanent installation, you there is two ways to do i
 ![cables-via-bumper](./pics/d3/cables-via-bumper.jpg) ![d3-install-outside](./pics/installs/d3-install-outside.png) | ![jay-jst-xh](./pics/installs/jay/2-install-JST-XH.jpg) ![jay-installed](./pics/installs/jay/4-installed-and-taped.jpg)
 
 ## Step 6
-Copy the contents of [ha-card](./ha-card.yaml), if you changed the name you will need to do a find and replace all instances of `neato_vaccum` to whatever you set, however home assistant may change some characters, see the exact id under the ESPHome device settings. 
+Copy the contents of [ha-card](https://github.com/philip2809/neato-connected/releases/latest/download/ha-card.yaml), if you changed the name you will need to do a find and replace all instances of `neato_vaccum` to whatever you set, however home assistant may change some characters, see the exact id under the ESPHome device settings. 
 
 Edit a dashboard you where you want the card, add a new section with "Manual" and paste the config for the card. Save and exit edit mode, you should now be able to control your neato connected locally!
 
