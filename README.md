@@ -109,7 +109,7 @@ Open the ESPHome Builder and click the "Secrets" in the top right. Make sure you
 # Generate at https://esphome.io/components/api/#api-key
 neato_vacuum_api: "<API_KEY>"
 # Generate at https://bitwarden.com/password-generator/
-neato_vaccum_ota: "<OTA_PASSWORD>"
+neato_vacuum_ota: "<OTA_PASSWORD>"
 
 # Your Wi-Fi SSID and password
 wifi_ssid: "<WIFI_SSID>"
