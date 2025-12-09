@@ -11,6 +11,8 @@
 
 ### [Discord](https://discord.gg/PAgwhWvyD8)
 
+### [Sign the petition](https://openpetition.org/!wknmd)
+
 # neato-connected
 
 If you want to learn about the inner workings of neato robots and my findings, please go [here](./findings.md), if you want to repair your neato to regain some of the lost functionallity, continue reading on this page. To make the proccess as easy as possible, I recommend to read the entire guide before actucally doing anything. 
