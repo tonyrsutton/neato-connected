@@ -46,13 +46,13 @@ Now due to the shutdown of the cloud for the neato robots, there are three optio
 
 **We would like to support all robots where an debug interface, or other controls, is accessible, but since we only have easy access to test on a D3 and D5, we can only test on those. If you have another robot, please open an discussion so we can verify that it works or add support for it!**
 
-As far as we know, only the D3, D4, D5, D7 and D7 has the firmware `4.5.3` and currenly the config is based on that so the robots that should work with that firmware is as follows:
+As far as we know, only the D3, D4, D5, D6 and D7 has the firmware `4.5.3` and currenly the config is based on that so the robots that should work with that firmware is as follows:
 - Confirmed working: **D3, D5, D7**
 - Should work, need confirmation: **D4, D6**
-- Should work with some work: **D70-D85, Connected, [maybe others? please get in touch!]**
+- Should work with some work: **D70-D85, Connected, XV-series [maybe others? please get in touch!]**
 
 **Trickier robots**
-- D8 (probably D9, D10) - These robots use a compleatly different board, chip and firmware, and because the debug interface seams to be behind a password lock, this cannot be controlled directly.
+- D8 (probably D9, D10) - These robots use a compleatly different board, chip and firmware, and because the debug interface seams to be behind a password lock, this cannot be controlled directly. If you have one of these and are willing to tinker, please get in touch!
 
 ### What do I need?
 Sadly to be able to repair your neato vacuum you **need to access an USB port or debug pins** to be able to connect to the debug interface, we will be going through the different options to access these pins, as well as everything you need for a full locally controlled setup!
