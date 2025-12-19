@@ -2,4 +2,4 @@
 
 esphome:
   includes:
-    - test.h
+    - esphome/test.h
