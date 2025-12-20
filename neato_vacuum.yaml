@@ -3,7 +3,7 @@
 
 # platform, based on https://esphome.io/components/#supported-microcontrollers 
 esp32:
-  board: esp32dev
+  variant: ESP32
   framework:
     type: esp-idf
 
@@ -13,24 +13,58 @@ substitutions:
 # THIS IS A BETA VERSION! IT MAY BE UNSABLE OR NOT WORKING, FOR THE LATEST PLEASE DOWNLOAD FROM RELEASES!
   uart_rx: <SET BASED ON YOUR DEVICE>
 
-# If you want to have access via the webserver, uncomment the following 2 lines (remove the #)
-#web_server:
-#  port: 80
+# If you want to have access via the webserver, uncomment the following 3 lines (remove the #)
+web_server:
+  port: 80
+  version: 3
+  log: false
+
+ota:
+  - platform: esphome
+    password: !secret neato_vacuum_ota
+
+wifi:
+  ssid: !secret wifi_ssid
+  password: !secret wifi_password
+
+  ap:
+    ssid: "Neato-ESPHOME"
+    password: "connect-to-your-wifi"
+
+  # If your router sets another TLD for local devices, specify that here
+  #domain: .lan
+  # If you are having issues with the dns or are 100% this will be the ip, you can spesify that here
+  #use_address: <IP OF YOUR ESP DEVICE>
+
+captive_portal:
+
+# packages:
+#   # shorthand form github://username/repository/[folder/]file-path.yml[@branch-or-tag]
+#   # remote_package_shorthand: github://esphome/non-existant-repo/file1.yml@main
+
+#   test2:
+#     url: https://github.com/Philip2809/neato-connected
+#     # files: [esphome/test.yaml, esphome/test.h]  # optional; if not specified, all files will be included
+#     ref: next  # optional
+#     refresh: 5s  # optional
+
+dashboard_import:
+  package_import_url: github://philip2809/neato-Connected/ha-card.yaml@main
+  import_full_config: false
 
 esphome:
   name: neato-vacuum # If you want another name, change it here, remeber to replace it in the ha-card.yaml!
 ##############################################################################################################################
 
 
-
 #   Combatability between esphome config and this card is ensured as long as the
-#   major version's match, for relase candicates, betas etc (indicated by X.X-a/b/rc.X), the version
+#   minor version's match, for relase candicates, betas etc (indicated by X.X-a/b/rc.X), the version
 #   has to match perfectly otherwise compatability is not promised. 
 #
 #   Please try to keep the versions the same, and check the github for updates!
   project: 
     name: philip2809.neato-connected
-    version: "1.1.1"
+    version: "1.2-b.3"
 
   on_boot:
     - priority: 600
@@ -55,6 +89,7 @@ esphome:
 
             id(last_cleaning_duration).publish_state(id(g_last_cleaning_duration));
 
+
 script:
   - id: get_user_settings
     mode: queued
@@ -71,15 +106,15 @@ script:
       - delay: 50ms  
       - uart.write: "GetCharger \n"    
       - delay: 50ms  
-      - uart.write: "GetVersion \n"    
-      - delay: 50ms  
       - uart.write: "GetUserSettings \n"  
       - delay: 50ms
       - uart.write: "GetWarranty \n"
       - delay: 50ms  
       - uart.write: "TestMode \n"
+      - delay: 50ms  
+      - uart.write: "GetVersion \n"    
   
-  - id: inital_data_get # when the robot has booted, run this inital fetch after 5 seconds of being able to send commands, the 5 sec needed to the robot can calculate battery levet etc.
+  - id: initial_data_get # when the robot has booted, run this initial fetch after 5 seconds of being able to send commands, the 5 sec needed to the robot can calculate battery levet etc.
     mode: queued
     then: 
       - delay: 5sec
@@ -113,6 +148,29 @@ script:
               id(g_last_cleaning_duration) = duration_min;
               id(last_cleaning_duration).publish_state(duration_min);
           }
+  - id: play_extra_sounds
+    parameters:
+      soundid: int
+    then:
+      - if:
+          condition:
+            lambda: |-
+              return id(g_play_extra_sounds);
+          then:
+            - uart.write: !lambda |-
+                std::string s =
+                  "PlaySound SoundId " + std::to_string(soundid) + "\n";
+                return std::vector<uint8_t>(s.begin(), s.end());
+
+  - id: send_event
+    parameters:
+      event: string
+    then:
+      - uart.write: !lambda |-
+          std::string s =
+            "SetEvent event " + event + " SKey " + id(robot_skey) + "\n";
+          return std::vector<uint8_t>(s.begin(), s.end());
+
 
 
 globals:
@@ -120,6 +178,10 @@ globals:
     type: bool
     restore_value: no
     initial_value: 'false'
+
+  - id: robot_skey
+    type: std::string
+    restore_value: no
 
   # --- STORE IN FLASH, MAX 96 BYTES! ---
   - id: g_last_cleaning_start_time         # 8 BYTES
@@ -133,7 +195,11 @@ globals:
   - id: g_last_cleaning_duration           # 4 BYTES
     type: uint32_t
     restore_value: yes
-  # --- TOTAL BYTES USED: 16 BYTES ---
+
+  - id: g_play_extra_sounds                # 1 BYTE
+    type: bool
+    restore_value: yes
+  # --- TOTAL BYTES USED: 17 BYTES ---
 
 
 interval:
@@ -165,6 +231,14 @@ api:
             // convert string → vector<uint8_t>
             return std::vector<uint8_t>(s.begin(), s.end());
 
+    - action: clear_alert
+      variables:
+        alert: string
+      then:
+        - uart.write: !lambda |-
+            std::string cmd = std::string("SetUIError clearalert ") + alert + "\n";
+            return std::vector<uint8_t>(cmd.begin(), cmd.end());
+
     - action: play_sound
       variables:
         soundid: int
@@ -175,16 +249,6 @@ api:
             // convert string → vector<uint8_t>
             return std::vector<uint8_t>(s.begin(), s.end());
 
-ota:
-  - platform: esphome
-    password: !secret neato_vacuum_ota
-
-
-wifi:
-  ssid: !secret wifi_ssid
-  password: !secret wifi_password
-  # If your router sets another TLD for local devices, specify that here
-  #domain: .<whatever you are using, e.g. lan>
 
 logger:
   baud_rate: 0
@@ -280,7 +344,7 @@ uart:
             // If we can get erros/alerts, the system is ready for other commands:
             if (!id(initial_ready)) {
                 id(initial_ready) = true;
-                id(inital_data_get).execute();
+                id(initial_data_get).execute();
             }
           }
           else if (command == "GetCharger") {
@@ -485,10 +549,6 @@ uart:
             }
           } else if (command.find("ARCHES Board") != std::string::npos) id(uiState).publish_state("Starting...");
 
-          //else {
-            //  id(uiState).publish_state(command.c_str());
-          //}
-
 
 sensor:
   # --- GetCharger ---
@@ -663,6 +723,61 @@ text_sensor:
     id: robotSerial
     name: "Serial Number"
     entity_category: "diagnostic"
+    on_value: 
+      then:
+        - lambda: !lambda |-
+            // Get the mac address, abort  if the serial is malformed
+            size_t comma_pos = x.find(',');
+            if (comma_pos == std::string::npos) {
+              ESP_LOGE("config", "Serial invalid (no comma): %s", x.c_str());
+              abort();
+            }
+
+            std::string mac = x.substr(comma_pos + 1, 12);
+
+            if (mac.length() != 12) {
+              ESP_LOGE("config", "Invalid MAC length (%d): %s", mac.length(), mac.c_str());
+              abort();
+            }
+
+            // Calculate based on mac
+            static uint8_t t1[256];
+            static uint8_t t2[256];
+            static char result[128];
+            const uint8_t byte_array[] = { 0x68, 0x36, 0x43, 0x58, 0x09, 0x09, 0x3A, 0x3C, 0x2A, 0x7B, 0x59 };
+
+            for (int i = 0; i < 256; i++)
+              t1[i] = i;
+
+            int j = 0, i = 0;
+            for (int i = 0; i < 256; i++) {
+              j = (j + t1[i] + byte_array[i % 11]) & 0xFF;
+              uint8_t tmp = t1[i];
+              t1[i] = t1[j];
+              t1[j] = tmp;
+            }
+
+            j = 0;
+            for (size_t k = 0; k < 12; k++) {
+              i = (i + 1) & 0xFF;
+              j = (j + t1[i]) & 0xFF;
+
+              uint8_t tmp = t1[i];
+              t1[i] = t1[j];
+              t1[j] = tmp;
+
+              t2[k] = t1[(t1[i] + t1[j]) & 0xFF];
+            }
+
+            size_t len = mac.length();
+
+            for (size_t j = 0; j < len; j++) {
+              snprintf(&result[j * 2], 3, "%02x", t2[j] ^ (uint8_t) mac[j]);
+            }
+
+            result[len * 2] = result[len / 2];
+            id(robot_skey) = std::string(result);
+
 
   - platform: template
     id: robotModel
@@ -710,6 +825,17 @@ switch:
       - uart.write: "TestMode \n"
     entity_category: "diagnostic"
 
+  - platform: template
+    name: "Play Extra Sounds"
+    optimistic: true
+    id: switch_play_extra_sounds
+    turn_on_action:
+      - lambda: 'id(g_play_extra_sounds) = true;'
+    turn_off_action:
+      - lambda: 'id(g_play_extra_sounds) = false;'
+    entity_category: "diagnostic"
+
+  # --- SetUserSettings ---
   - platform: template
     name: "Click sounds"
     optimistic: true
@@ -879,13 +1005,23 @@ button:
     name: "House Clean"
     icon: mdi:home
     on_press:
-      - uart.write: "Clean \n"
+      - script.execute:
+          id: play_extra_sounds
+          soundid: 1
+      - script.execute:
+          id: send_event
+          event: "UIMGR_EVENT_SMARTAPP_START_HOUSE_CLEANING"
 
   - platform: template
     name: "Spot Clean"
     icon: mdi:target
     on_press:
-      - uart.write: "Clean Spot \n"
+      - script.execute:
+          id: play_extra_sounds
+          soundid: 1
+      - script.execute:
+          id: send_event
+          event: "UIMGR_EVENT_SMARTAPP_START_SPOT_CLEANING"
 
   - platform: template
     name: "Spot Clean (Height & Width)"
@@ -898,41 +1034,40 @@ button:
             int h = (int) id(spot_height).state;
 
             std::string cmd = "Clean Spot Width " + std::to_string(w) + " Height " + std::to_string(h) + "\n";
+            id(play_extra_sounds)->execute(1);
             return std::vector<uint8_t>(cmd.begin(), cmd.end());
 
   - platform: template
     name: "Stop Cleaning"
     icon: mdi:stop
     on_press:
-      - uart.write: "Clean Stop \n"
-      - script.execute: cleaning_stopped
-      - delay: 100ms
-      - script.execute: powercycle
+      - script.execute:
+          id: send_event
+          event: "UIMGR_EVENT_SMARTAPP_STOP_CLEANING"
 
   - platform: template
     name: "Pause Cleaning"
     icon: mdi:pause
     on_press:
-      # Set SetUIError dance makes sure the robot realizes it is in the "Paused" state, otherwise it will keep reporting "Running" until you restart or press the button
-      - uart.write: "Clean Stop \n"
-      - delay: 50ms
-      - uart.write: "SetUIError setalert UI_ALERT_OLD_ERROR \n"
-      - delay: 50ms
-      - uart.write: "SetUIError clearalert UI_ALERT_OLD_ERROR \n"
+      - script.execute:
+          id: send_event
+          event: "UIMGR_EVENT_SMARTAPP_PAUSE_CLEANING"
+
+  - platform: template
+    name: "Send to base"
+    icon: mdi:home
+    on_press:
+      - script.execute:
+          id: send_event
+          event: "UIMGR_EVENT_SMARTAPP_SEND_TO_BASE"
 
   - platform: template
     name: "Resume Cleaning"
     icon: mdi:play
     on_press:
-      - uart.write: !lambda |-
-            // If we are in house cleaning, to resume just send clean, if we are in spot cleaning we append spot
-            std::string state = id(uiState).state;
-            std::string cmd = "Clean";
-
-            if (state == "UIMGR_STATE_SPOTCLEANINGPAUSED") cmd += " Spot";
-
-            cmd += " \n";
-            return std::vector<uint8_t>(cmd.begin(), cmd.end());
+      - script.execute:
+          id: send_event
+          event: "UIMGR_EVENT_SMARTAPP_RESUME_CLEANING"
 
   - platform: template
     name: "Locate Robot"
@@ -941,10 +1076,129 @@ button:
       - uart.write: "PlaySound SoundId 20 \n"  
 
   - platform: template
+    name: "Manual Drive Forward Up"
+    icon: mdi:arrow-up
+    on_press:
+      - script.execute:
+          id: send_event
+          event: "UIMGR_EVENT_SMARTAPP_DRIVE_MANUAL_FORWARD_UP"
+
+  - platform: template
+    name: "Manual Drive Backwards Up"
+    icon: mdi:arrow-down
+    on_press:
+      - script.execute:
+          id: send_event
+          event: "UIMGR_EVENT_SMARTAPP_DRIVE_MANUAL_BACKWARDS_UP"
+
+  - platform: template
+    name: "Manual Drive Turn Left Up"
+    icon: mdi:arrow-left
+    on_press:
+      - script.execute:
+          id: send_event
+          event: "UIMGR_EVENT_SMARTAPP_DRIVE_MANUAL_TURN_LEFT_UP"
+
+  - platform: template
+    name: "Manual Drive Turn Right Up"
+    icon: mdi:arrow-right
+    on_press:
+      - script.execute:
+          id: send_event
+          event: "UIMGR_EVENT_SMARTAPP_DRIVE_MANUAL_TURN_RIGHT_UP"
+
+  - platform: template
+    name: "Manual Drive Arc Left Up"
+    icon: mdi:rotate-left
+    on_press:
+      - script.execute:
+          id: send_event
+          event: "UIMGR_EVENT_SMARTAPP_DRIVE_MANUAL_ARC_LEFT_UP"
+
+  - platform: template
+    name: "Manual Drive Arc Right Up"
+    icon: mdi:rotate-right
+    on_press:
+      - script.execute:
+          id: send_event
+          event: "UIMGR_EVENT_SMARTAPP_DRIVE_MANUAL_ARC_RIGHT_UP"
+
+  - platform: template
+    name: "Manual Drive Forward Down"
+    icon: mdi:arrow-up-bold
+    on_press:
+      - script.execute:
+          id: send_event
+          event: "UIMGR_EVENT_SMARTAPP_DRIVE_MANUAL_FORWARD_DOWN"
+
+  - platform: template
+    name: "Manual Drive Backwards Down"
+    icon: mdi:arrow-down-bold
+    on_press:
+      - script.execute:
+          id: send_event
+          event: "UIMGR_EVENT_SMARTAPP_DRIVE_MANUAL_BACKWARDS_DOWN"
+
+  - platform: template
+    name: "Manual Drive Turn Left Down"
+    icon: mdi:arrow-left-bold
+    on_press:
+      - script.execute:
+          id: send_event
+          event: "UIMGR_EVENT_SMARTAPP_DRIVE_MANUAL_TURN_LEFT_DOWN"
+
+  - platform: template
+    name: "Manual Drive Turn Right Down"
+    icon: mdi:arrow-right-bold
+    on_press:
+      - script.execute:
+          id: send_event
+          event: "UIMGR_EVENT_SMARTAPP_DRIVE_MANUAL_TURN_RIGHT_DOWN"
+
+  - platform: template
+    name: "Manual Drive Arc Left Down"
+    icon: mdi:rotate-left
+    on_press:
+      - script.execute:
+          id: send_event
+          event: "UIMGR_EVENT_SMARTAPP_DRIVE_MANUAL_ARC_LEFT_DOWN"
+
+  - platform: template
+    name: "Manual Drive Arc Right Down"
+    icon: mdi:rotate-right
+    on_press:
+      - script.execute:
+          id: send_event
+          event: "UIMGR_EVENT_SMARTAPP_DRIVE_MANUAL_ARC_RIGHT_DOWN"
+
+  - platform: template
+    name: "Manual Drive Button Timeout"
+    icon: mdi:timer-off
+    on_press:
+      - script.execute:
+          id: send_event
+          event: "UIMGR_EVENT_SMARTAPP_DRIVE_MANUAL_BTN_TIMEOUT"
+
+  - platform: template
+    name: "Start Manual Cleaning"
+    icon: mdi:play-circle
+    on_press:
+      - script.execute:
+          id: send_event
+          event: "UIMGR_EVENT_SMARTAPP_START_MANUAL_CLEANING"
+
+  - platform: template
     name: "Update status"
     icon: mdi:refresh
     on_press:
       - script.execute: get_all_data 
+    entity_category: "diagnostic"
+
+  - platform: template
+    name: "Clear All Alerts & Errors"
+    icon: mdi:notification-clear-all
+    on_press:
+      - uart.write: "SetUIError clearall \n"
     entity_category: "diagnostic"
 
   - platform: template

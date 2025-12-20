@@ -1,5 +1,0 @@
-# test
-
-esphome:
-  includes:
-    - /data/build/neato-vacuum/src/test.h
