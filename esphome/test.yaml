@@ -2,4 +2,4 @@
 
 esphome:
   includes:
-    # - /data/build/neato-vacuum/src/test.h
+    - /data/build/neato-vacuum/src/test.h
