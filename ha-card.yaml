@@ -8,7 +8,7 @@ variables:
     not promised. Please try to keep the versions the same, and check the github
     for updates!
   project: philip2809.neato-connected
-  version: "1.1.1"
+  version: "1.2-b.3"
 cards:
   - type: custom:button-card
     variables:
@@ -94,6 +94,14 @@ cards:
                   ? 'block'
                   : 'none';
               ]]]
+        manual_drive:
+          - position: absolute
+          - bottom: 8px
+          - right: 8px
+          - padding: 4px
+          - border-radius: 8px
+          - height: 15%
+          - width: 10%
     custom_fields:
       battery: |-
         [[[ 
@@ -105,9 +113,126 @@ cards:
           if (states[`binary_sensor.${variables.robot_id}_ext_power_present`]?.state === 'on') {
             return 'DOCKED';
           } else {
-            return 'sdfsdf';
+            return '';
           }
         ]]]
+      manual_drive:
+        card:
+          type: custom:button-card
+          icon: mdi:steering
+          size: 100%
+          styles:
+            card:
+              - background-color: rgba(255,255,255,0.2)
+          tap_action:
+            action: fire-dom-event
+            browser_mod:
+              service: browser_mod.popup
+              data:
+                title: Manual driving
+                size: normal
+                content:
+                  type: vertical-stack
+                  cards:
+                    - type: horizontal-stack
+                      cards:
+                        - type: custom:button-card
+                          entity: button.neato_vacuum_manual_drive_arc_left_down
+                          name: Arc Left
+                          press_action:
+                            action: call-service
+                            service: button.press
+                            target:
+                              entity_id: button.neato_vacuum_manual_drive_arc_left_down
+                          release_action:
+                            action: call-service
+                            service: button.press
+                            target:
+                              entity_id: button.neato_vacuum_manual_drive_arc_left_up
+                        - type: custom:button-card
+                          entity: button.neato_vacuum_manual_drive_forward_down
+                          name: Forward
+                          press_action:
+                            action: call-service
+                            service: button.press
+                            target:
+                              entity_id: button.neato_vacuum_manual_drive_forward_down
+                          release_action:
+                            action: call-service
+                            service: button.press
+                            target:
+                              entity_id: button.neato_vacuum_manual_drive_forward_up
+                        - type: custom:button-card
+                          entity: button.neato_vacuum_manual_drive_arc_right_down
+                          name: Arc Right
+                          press_action:
+                            action: call-service
+                            service: button.press
+                            target:
+                              entity_id: button.neato_vacuum_manual_drive_arc_right_down
+                          release_action:
+                            action: call-service
+                            service: button.press
+                            target:
+                              entity_id: button.neato_vacuum_manual_drive_arc_right_up
+                    - type: horizontal-stack
+                      cards:
+                        - type: custom:button-card
+                          entity: button.neato_vacuum_manual_drive_turn_left_down
+                          name: Left
+                          press_action:
+                            action: call-service
+                            service: button.press
+                            target:
+                              entity_id: button.neato_vacuum_manual_drive_turn_left_down
+                          release_action:
+                            action: call-service
+                            service: button.press
+                            target:
+                              entity_id: button.neato_vacuum_manual_drive_turn_left_up
+                        - type: custom:button-card
+                          entity: button.neato_vacuum_manual_drive_button_timeout
+                          name: Timeout
+                          tap_action:
+                            action: toggle
+                        - type: custom:button-card
+                          entity: button.neato_vacuum_manual_drive_turn_right_down
+                          name: Arc Right
+                          press_action:
+                            action: call-service
+                            service: button.press
+                            target:
+                              entity_id: button.neato_vacuum_manual_drive_turn_right_down
+                          release_action:
+                            action: call-service
+                            service: button.press
+                            target:
+                              entity_id: button.neato_vacuum_manual_drive_turn_right_up
+                    - type: horizontal-stack
+                      cards:
+                        - type: custom:button-card
+                          entity: button.neato_vacuum_start_manual_cleaning
+                          name: Start manual
+                          tap_action:
+                            action: toggle
+                        - type: custom:button-card
+                          entity: button.neato_vacuum_manual_drive_backwards_down
+                          name: Backward
+                          press_action:
+                            action: call-service
+                            service: button.press
+                            target:
+                              entity_id: button.neato_vacuum_manual_drive_backwards_down
+                          release_action:
+                            action: call-service
+                            service: button.press
+                            target:
+                              entity_id: button.neato_vacuum_manual_drive_backwards_up
+                        - type: custom:button-card
+                          entity: button.neato_vacuum_stop_cleaning
+                          name: Stop
+                          tap_action:
+                            action: toggle
     extra_styles: |
       @keyframes pulseGreen {
         0%   { box-shadow: 0 0 5px 0    rgba(124, 252, 0, 0.6); }
@@ -304,6 +429,16 @@ cards:
         name: Locate
         tap_action:
           action: toggle
+      - type: conditional
+        conditions:
+          - entity: binary_sensor.neato_vacuum_ext_power_present
+            state_not: "on"
+        card:
+          type: custom:button-card
+          entity: button.neato_vacuum_send_to_base
+          name: Send to base
+          tap_action:
+            action: toggle
       - type: custom:button-card
         variables:
           robot_id: neato_vacuum
