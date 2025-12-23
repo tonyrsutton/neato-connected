@@ -83,6 +83,41 @@ The reason this works on all neato robots is because they all have the command i
 
 # Getting started!
 
+To get this up and running you will need to connect to the debug port or usb port on the robot. The XV-series robots have the usb port on the back, the rest has it in the dustbin area, making it inaccicible when using, for these robots we need to connect via the serial debug port, you would also need to do this if you are installing it internally inside the XV-series. So sadly for this repair you will need to get some extra hardware to get it up and running; however we are happy to help you out any step along the way!
+
+There is two ways of using this repair:
+| **Without Home Assistant** | **With Home Assistant** |
+|----------------------------------------|----------------------------------------|
+| <ol><li>Flash ESP device with prebuild images</li><li>Connect to robot</li><li>Configure wifi</li><li>Make sure it works</li><li>Fix ESP device inside or outside robot</li><li>Enjoy a locally connected vacuum!</ol> | <ol><li>Setup HACS and install add-ons</li><li>Setup ESPHome</li><li>Flash ESP device with your image</li><li>Connect to robot</li><li>Add ESP device to Home Assistant</li><li>Setup Home Assistant entity and card</li><li>Make sure it works</li><li>Fix ESP device inside or outside the robot</li><li>Enjoy your locally connected vacuum!</li></ol> |
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 If you haven't heard of home assistant yet then this is an awesome time to learn about it! It is an open source home automation tool that puts local control and privacy first. Read more about them on their [website](https://www.home-assistant.io/) and try their [live demo](https://demo.home-assistant.io) if you want! There is a lot of great guides and information about home hassistant on youtube and their forums! They also have some amazing guides on their [site](https://www.home-assistant.io/installation/) to get an home assistant installation going. If you have any questions or problems, don't hesitate to ask for help here in the [discusstions](https://github.com/Philip2809/neato-connected/discussions) section, on our [discord](https://discord.gg/PAgwhWvyD8) or the home assistant [help](https://www.home-assistant.io/help/) page.
 
 If you want the latest release, most stable code, please download the files from the [releases]() section. All links below will link to that! If you want the latest version, even if that is an beta, take the code directly from the files here on the `main` branch, or download a specific version from the pre releases.
