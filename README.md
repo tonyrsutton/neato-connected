@@ -206,7 +206,7 @@ Copy the contents of [ha-card](https://github.com/philip2809/neato-connected/rel
 
 **If you have changed the name in the ESPHome config:**
 1. Paste the content into a text editor
-2. Go to `Developer tools` --> `States` --> `In "Filter entities" seatch for "_fuel_percent"`
+2. Go to `Developer tools` --> `States` --> `In "Filter entities" search for "_fuel_percent"`
 3. There should be a result for `sensor.<ENTITY_ID>_fuel_percent`
     - This entity id is probaly the same as the name you gave but lowercase and dashes changed for underscores.
 4. Replace all instances of `neato_vacuum` with your `<ENTITY_ID>`
