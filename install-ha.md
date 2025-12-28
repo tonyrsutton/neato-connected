@@ -23,6 +23,7 @@ We need to install certain add-ons to the home assistant installation to use all
 ### Home assistant add-ons
 Donwload "ESPHome Device Builder" by
 1. Going to `Settings` --> `Add-ons` --> `Add-on Store` --> `Open "ESPHome Device Builder"`.
+    - [![Open your Home Assistant instance and show the dashboard of an add-on.](https://my.home-assistant.io/badges/supervisor_addon.svg)](https://my.home-assistant.io/redirect/supervisor_addon/?addon=5c53de3b_esphome&repository_url=https%3A%2F%2Fgithub.com%2Fesphome%2Fhome-assistant-addon)
 2. Select install.
 3. I would recommend to enable `Add to sidebar` and `Start on boot`. If you decide not to add it to the sidebar, you will need to open ESPHome by coming back to this page and selecting `Open web UI`.
 
@@ -32,12 +33,13 @@ If you don't already have hacs, follow their guide to set it up: https://www.hac
     - An button element to place on a dashboard with a lot of configurations to make the card look nice.
 - `browser_mod` `194140521`
     - Allow for a popup when clicking on settings or holding down the spot clean button.
-    - Don't forget to add the "Browser Mod" integration in Settings -> Devices & Services -> Add Integration or click this button: [![Open your Home Assistant instance and start setting up a new integration.](https://my.home-assistant.io/badges/config_flow_start.svg)](https://my.home-assistant.io/redirect/config_flow_start/?domain=browser_mod)
+    - Don't forget to add the "Browser Mod" integration in Settings -> Devices & Services -> Add Integration or click this button: 
+        - [![Open your Home Assistant instance and start setting up a new integration.](https://my.home-assistant.io/badges/config_flow_start.svg)](https://my.home-assistant.io/redirect/config_flow_start/?domain=browser_mod)
     - It will ask you if you want to register your browser as a device, you don't need to do this for it to work!
 
 After installing these add-ons you need to refresh your page, however, some browsers need a hard refresh. This you can do by pressing `Ctrl + Shift + R`. If it still does not want to work you might need to restart Home Assistant.
 
-## Step 3
+## Step 2
 
 ### ESPHome Secrets
 Open the ESPHome Builder and click the "Secrets" in the top right. Make sure your secrets include at the minimum this:
@@ -67,14 +69,41 @@ Next, you will need to figure out which pins to use, once again this is highly d
 - [ESP32](https://randomnerdtutorials.com/esp32-pinout-reference-gpios/)
 - [ESP8266](https://randomnerdtutorials.com/esp8266-pinout-reference-gpios/)
 
-## Step 4
-Now you will need to build and flash the images onto your ESP device! While in the editor, press the "Install" button in the top right, since the device is not yet setup, select "Manual download", this will build the configuration file to an image you can flash, this might take a while on a fresh system. 
+## Step 3
+Now you will need to build and flash the images onto your ESP device! While in the editor, press the "Install" button in the top right, since the device is not yet setup, select "Manual download", this will build the configuration file to an image you can flash, this might take a while on a fresh system, or not powerful hardware.
 
 Once the image has been built, select to download in "Factory format", save this file on your computer and open [ESPHome Web](https://web.esphome.io/). Since this uses WebSerial you will need to use a chromium based browser. ESPHome has an amazing [guide](https://esphome.io/guides/physical_device_connection/) if this is your first time doing this, but to summerize, if you have an usb-port on your device, connect to it, if not you will need to connect to the `TX`, `RX`, `GND` and `3.3V/5V` with an TTY adapter. Then go into bootloader mode by pressing the "BOOT" button, if you don't have one, connect `GPIO0` to `GND`.
 
-Once in ESPHome Web, connect your device to your computer, while going into bootloader mode, then select it in the list. Once selected, upload the firmware file you downloaded before and wait for it to finish. Once finished, it will reboot and you should see it connect to your wifi network.
+Once in ESPHome Web, connect your device to your computer, while going into bootloader mode, then select it in the list. Once selected, upload the firmware file you downloaded before and wait for it to finish.
 
-## Step 5
+Once the device has connected you need to verify that it works and you can see the web server it is hosting before we continue. For most people one of two links will bring you to the ESP device's web server:
+- [`neato-vacuum.local`](http://neato-vacuum.local)
+- [`neato-vacuum.lan`](http://neato-vacuum.lan)
+
+**If you changed the name of your device in the config, these links will be different!**
+
+If neither of these link work, please check that the device actually connected to your wifi and see if you can get the ip-address of the ESP device. If you are still having problems or have trouble finding the ip-address, feel free to ask for help!
+
+## Step 4
+When you have navigated to the site of the ESP device it should look something like this:
+# todo: add image
+
+This is the webserver of the device. It will show up as not connected since we are not connected to the robot, we are only connected to a power source so that the ESP device can be configured. Now you can connect the device to the robot via the debug port to make sure that it works are you want to! To do this:
+1. Turn the robot off
+2. Take of the bumper of the robot
+3. Connect to the robot
+    | Robot | ESP |
+    |---|---|
+    |RX|GPIO17|
+    |3.3V|3.3V|
+    |TX|GPIO16|
+    |GND|GND|
+
+    ![Connection diagram](pics/setup/noha-step_4-connection-diagram.png)
+4. Turn the robot back on, this should power up the ESP device and you can now go to the webserver interface page we saw before and the data from the robot should now show up!
+    # todo: add image
+5. Click the different buttons to make sure that it works, if you have a D3-D7, drive it around with the manual mode, however, remeber that the bumper is off!
+
 Now you will need to connect to the robot over it's serial debug port. 
 
 To verify that everything works, either if you just want to try this out, or test what pins you can use before making a permanent installation you should take the bumper off and connect to the debug pins directly.
@@ -88,17 +117,17 @@ To verify that everything works, either if you just want to try this out, or tes
 |GND|GND|
 
 
-## Step 6
+## Step 5
 
 After flashing and connecting the ESP device to the robot we need to add the ESP device into Home Assistant.
-1. Power the robot on
+1. Power the robot on if it is off
 2. In Home Assistant navigate to: `Settings` --> `Devices & Services` -- `Click "Add integration"` --> `Search "ESPHome"`
 3. Enter the hostname or ip address of the ESPHome device
     - If you haven't change the name of the device in the config, it is most likely `neato-vacuum.local` or `neato-vacuum.lan` depending on your router.
     - If you want to use the ip address, find what ip the device got in your router. If you decide to use the ip, make sure to set it static!
 4. Click submit and the device should be added.
 
-## Step 7
+## Step 6
 Copy the contents of [ha-card](https://github.com/philip2809/neato-connected/releases/latest/download/ha-card.yaml)
 
 **If you have changed the name in the ESPHome config:**
@@ -115,7 +144,7 @@ Copy the contents of [ha-card](https://github.com/philip2809/neato-connected/rel
 3. Scroll to the buttom and select `Manual`
 4. Paste the contents of the card (if you changed the name, the modified one)
 
-## Step 8
+## Step 7
 **Before you make a permanent installation, make sure it all works via Home Assistant as you want it to!**
 
 And once you are ready for the permanent installation, you there is two ways to do it:
@@ -125,7 +154,7 @@ And once you are ready for the permanent installation, you there is two ways to 
 ![cables-via-bumper](./pics/d3/cables-via-bumper.jpg) ![d3-install-outside](./pics/installs/d3-install-outside.png) | ![jay-jst-xh](./pics/installs/jay/2-install-JST-XH.jpg) ![jay-installed](./pics/installs/jay/4-installed-and-taped.jpg)
 
 
-## Step 9
+## Step 8
 Now you can enjoy your locally controllable neato vacuum cleaner! Of course there is some quirks with this repair, however we feel they are worth the ability to regain functionality.
 
 Missing features or annoying workarounds:
