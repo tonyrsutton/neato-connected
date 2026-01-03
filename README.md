@@ -19,17 +19,45 @@
 
 Repair your Neato Robot Vacuum to be controlled via locally after the shutdown of the Neato servers. The scope of this project is to give your robot at least the same functionallity as when you bought it, however as the project is in a development state. 
 
+Since there is a couple of robots from neato and they have different firmware versions, they will need different configurations. I have decided they will be grouped based on their "generation".
 
-| Feature | D3-D7 | Connected, D70-D85, XV-series |
-|---|---|---|
-| Start & Stop | ✅ | ✅ |
-| Check errors | ✅ | ✅ |
-| Status | ✅ | 🟠 |
-| Edit settings | ✅ | ✅ |
-| Scheduling on robot | ❌ | ✅ |
-| Scheduling via ESPHome/Home Assistant | ✅ | ✅ |
-| Return to dock/start | ✅ | ✅ |
-| Manual driving | ✅ | ❌ |
+- `gen1` - (Generation 1)
+    - XV11
+    - XV12
+    - XV14
+    - XV21
+    - XV RS/HP
+    - XV signature
+    - XV signature pro
+- `gen2` - (Generation 2)
+    - Neato Botvac D70
+    - Neato Botvac D75
+    - Neato Botvac D80
+    - Neato Botvac D85
+    - Neato Botvac Connected **(Non DX)** `905-0249`
+- `gen3` - (Generation 3)
+    - Neato Botvac D3 Connected `905-0321`
+    - Neato Botvac D4 Connected `905-0499`
+    - Neato Botvac D5 Connected `905-0358`
+    - Neato Botvac D6 Connected `905-0496`
+    - Neato Botvac D7 Connected `905-0415`
+- `gen 4` (Generation 4) - Sadly not yet supported
+    - Neato Botvac D8 Connected
+    - Neato Botvac D9 Connected
+    - Neato Botvac D10 Connected
+
+
+| Feature | `gen1` | `gen2` | `gen3` |
+|---|---|---|---|
+| Start & Stop | ✅ | ✅ | ✅ |
+| Check errors | ✅ | ✅ | ✅ |
+| Status | 🟠 | 🟠 | ✅ |
+| Edit settings | ❌ | ✅ | ✅ |
+| Scheduling on robot | ? | ✅ | ❌ |
+| Scheduling via ESPHome/Home Assistant | ✅ | ✅ | ✅ |
+| Return to start | ❌ | ✅ | ❌ |
+| Return to dock | ❌ | ❌ | ✅ |
+| Manual driving | ❌ | ❌ | ✅ |
 
 - ✅ - Supported
 - 🟠 - Limited functionality
