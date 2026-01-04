@@ -16,37 +16,14 @@
     - There might be limitations on how good this can be, relying on a serial interface, how fast commands can happen, etc
     - Would work with a fully custom-made robot
 
-#### Version 1.2
-- Add support for Connected, D70-D85, XV-series on firmware `2.2.0` or `2.2.1`
+#### Version 1.2 - in beta
+- Add support for Connected, D70-D85, XV-series
 - Event based commands, return to dock and manual driving for D3-D7
 - Full non-home assistant version
 - Rework docs, add faq
 - Add Home Assistant entity and automations/scripts
 
-
-### Supported features, version 1
-- D3-D7 
-    - **Features**    
-        - clean house
-        - clean spot
-        - pause
-        - resume
-        - stop
-        - ui status
-        - robot status
-        - errors 
-        - alerts
-        - return to dock
-        - manual driving
-- Connected, D70-D85, XV-series
-    - **Quirks:**
-        - limited status ("dumb" status, set based on button clicks)
-        - actions are done by using the `SetButton` command to simulate a user clicking the buttons on the robot, moving the cursor on the screen
-    - **Features**    
-        - clean house
-        - clean spot
-        - pause
-        - resume
-        - stop
-        - return to dock
-        - errors
+#### Version 1.3 - planned
+- Translations
+- Custom state managment based on ui-state, robot-state and sensors
+- gen2 robots error strings

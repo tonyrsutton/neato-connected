@@ -65,8 +65,6 @@ Since there is a couple of robots from neato and they have different firmware ve
 
 The ability to create, view and edit floormaps so the robot can get the same functionallity with nogo-lines and zones is in the making.
 
-**For the status and full feature list please check that out [here](./status.md)!**
-
 Main card | Settings View
 :-------------------------:|:-------------------------:
 ![ha-card](./pics/esphome/ha-card.png) |  ![ha-card-settings](./pics/esphome/ha-card-settings.png)

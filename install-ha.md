@@ -142,7 +142,31 @@ Copy the contents of [ha-card](https://github.com/philip2809/neato-connected/rel
 1. Press the pen icon in the top right on the desired dashboard
 2. Press `Add card`
 3. Scroll to the buttom and select `Manual`
-4. Paste the contents of the card (if you changed the name, the modified one)
+4. Paste the contents of the card (if you changed the name, then you need to modify it in here)
+
+### Vacuum Entity
+You can also use neato-connected as an Home Assistant vacuum entity. The vacuum entity is needed in case you want to use any of the automations or scripts.
+
+# todo: add picture of vacuum entity
+
+Sadly vacuum entities can only be added by editing the Home Assistant config files, however, I will walk though the entire proccess!
+1. Going to `Settings` --> `Add-ons` --> `Add-on Store` --> `Open "File editor"`.
+    - [![Open your Home Assistant instance and show the dashboard of an add-on.](https://my.home-assistant.io/badges/supervisor_addon.svg)](https://my.home-assistant.io/redirect/supervisor_addon/?addon=core_configurator&repository_url=https%3A%2F%2Fgithub.com%2Fesphome%2Fhome-assistant-addon)
+2. Select install.
+3. I would recommend to enable `Add to sidebar` and `Start on boot`. If you decide not to add it to the sidebar, you will need to come back here to open the file editor.
+4. Open the file editor by clicking on "Open web UI" or if you added it to the sidebar, click on it in the sidebar.
+5. Open the main `configuration.yaml` file by clicking on the folder icon in the top left then selecting the `configuration.yaml` file.
+6. Add the following like to this config and then save by pressing the red save button in the top right or press `Ctrl + S`.
+    ```yaml
+    template: !include_dir_merge_list templates/
+    ```
+7. Click on the folder icon again and create a folder called `templates`.
+8. Create a new file in this folder called `vacuums.yaml`.
+9. Put the content of [`ha-vacuum-entity.yaml`] into this file
+    - if you have multiple vacuums, duplicate the config from the `- name:` part and change the ids!
+10. Save the file and make sure the configuration is good by going to `Developer tools` --> `YAML` --> `Click on "Check configuration"` --> `If configuration is good, click on "All YAML configuration" under "YAML configuration reloading"`.
+
+### Schedule automation
 
 ## Step 7
 **Before you make a permanent installation, make sure it all works via Home Assistant as you want it to!**
