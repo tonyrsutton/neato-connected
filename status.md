@@ -27,3 +27,4 @@
 - Translations
 - Custom state managment based on ui-state, robot-state and sensors
 - gen2 robots error strings
+- use esphome package stuff to fetch from github directly
