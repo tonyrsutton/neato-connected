@@ -54,7 +54,9 @@ Since there is a couple of robots from neato and they have different firmware ve
 | Status | 🟠 | 🟠 | ✅ |
 | Edit settings | ❌ | ✅ | ✅ |
 | Scheduling on robot | ? | ✅ | ❌ |
-| Scheduling via ESPHome/Home Assistant | ✅ | ✅ | ✅ |
+| Scheduling via ESPHome | ✅ | ✅ | ✅ |
+| Scheduling via HA Automation | ✅¹ | ✅¹ | ✅¹ |
+| Notifications | ✅¹ | ✅¹ | ✅¹ |
 | Return to start | ❌ | ✅ | ❌ |
 | Return to dock | ❌ | ❌ | ✅ |
 | Manual driving | ❌ | ❌ | ✅ |
@@ -62,6 +64,7 @@ Since there is a couple of robots from neato and they have different firmware ve
 - ✅ - Supported
 - 🟠 - Limited functionality
 - ❌ - Not supported
+- ¹ - Home Assistant required
 
 The ability to create, view and edit floormaps so the robot can get the same functionallity with nogo-lines and zones is in the making.
 
@@ -112,7 +115,7 @@ Since we are parsing the data from the serial interface we need to be on the sam
 If you have another version then these; please get in touch!
 
 There is two ways of using this repair:
-| **Without Home Assistant** | **With Home Assistant** |
+| [**Without Home Assistant**](./install-no-ha.md) | [**With Home Assistant**](./install-ha.md) |
 |----------------------------------------|----------------------------------------|
 | <ol><li>Flash ESP device with prebuild images</li><li>Connect to robot</li><li>Configure wifi</li><li>Make sure it works</li><li>Fix ESP device inside or outside robot</li><li>Enjoy a locally connected vacuum!</ol> | <ol><li>Setup HACS and install add-ons</li><li>Setup ESPHome</li><li>Flash ESP device with your image</li><li>Connect to robot</li><li>Add ESP device to Home Assistant</li><li>Setup Home Assistant entity and card</li><li>Make sure it works</li><li>Fix ESP device inside or outside the robot</li><li>Enjoy your locally connected vacuum!</li></ol> |
 

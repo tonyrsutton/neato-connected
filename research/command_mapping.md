@@ -1,3 +1,6 @@
+### Command mapping for gen3 robots
+
+```csv
 Error, Message, Detail message
 223: UI_ALERT_BATTERY_ChargeBaseCommErr, Batter fault, tbd
 239: UI_ALERT_NAV_FLOORPLAN_NOT_CREATED
@@ -48,3 +51,4 @@ Error, Message, Detail message
 306: UI_ERROR_DECK_DEBRIS, Dust me off, tbd
 307: UI_ERROR_RDROP_STUCK, Clear right drop sensor
 308: UI_ERROR_LDROP_STUCK, Clear left drop sensor
+```

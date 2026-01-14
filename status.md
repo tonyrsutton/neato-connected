@@ -24,7 +24,11 @@
 - Add Home Assistant entity and automations/scripts
 
 #### Version 1.3 - planned
-- Translations
 - Custom state managment based on ui-state, robot-state and sensors
-- gen2 robots error strings
-- use esphome package stuff to fetch from github directly
+- Gen2 robots error strings
+- If possible: push notifications for non-ha install
+- Improve notifications
+
+#### Version 1.4 - planned
+- Translations
+- Use esphome package stuff to fetch from github directly

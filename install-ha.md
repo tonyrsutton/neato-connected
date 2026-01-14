@@ -54,12 +54,13 @@ wifi_ssid: "<WIFI_SSID>"
 wifi_password: "<WIFI_PASSWORD>"
 ```
 
-Once you have filled this file with your values, save it, and make sure to never share this file if asking for support etc.
+Once you have filled this file with your values, save it, and make sure to never share this file if asking for support etc. Remove the `<>` charachers, there are used for marking a field of what you should replace.
 
 If you want to add more devices, best practice is to set the api key and ota password in your secrets file. Your wifi password and ssid should also be kept here. Since the esp device will be strapped to, or inside the robot OTA (over the air) updates is quite important for this use case.
 
 ### Config file
 Once back at the ESPHome main page, click the big green button in the bottom left to add a new device. Read the information, but for now, click "Continue" and either import the [`neato_vacuum.yaml`](https://github.com/philip2809/neato-connected/releases/latest/download/neato_vacuum.yaml) file, or start with an empty configuration.
+# todo: links based on your robot gen
 
 **The following two steps might be hard to do, feel free to ask for help in the discord or discussions.**
 
@@ -167,6 +168,32 @@ Sadly vacuum entities can only be added by editing the Home Assistant config fil
 10. Save the file and make sure the configuration is good by going to `Developer tools` --> `YAML` --> `Click on "Check configuration"` --> `If configuration is good, click on "All YAML configuration" under "YAML configuration reloading"`.
 
 ### Schedule automation
+Via Home Assistant you can also schedule your robot, this allows for smarter scheduling since this can check if someone is home (if setup of course), holidays etc. To set this up:
+1. Go to `Settings` --> `Automations & Scenes` --> `Automations` --> Press the big blue `Create automation` in the bottom right corner
+2. Press `Create new automation`
+3. Add a trigger, for example that the vacuum should run every day at 08:00
+4. Send an event to start the vacuum, either via the button esphome created **OR** via the vacuum entity you created
+
+![Home Assistant Schedule Automation](pics/setup/ha-step_7-schedule-automation.png)
+
+You can add as many triggers you want, any trigger added will cause the automation to run, and then you can add `And if` rules to make sure it is only tirggered when all conditions added there are meet.
+
+### Notifications
+Via Home Assistant you can also get notifications. For now with 1.2 the showcased notification system here is rudamentory, the notifications will be vastly improved with 1.3.
+1. Go to `Settings` --> `Automations & Scenes` --> `Automations` --> Press the big blue `Create automation` in the bottom right corner
+2. Press `Create new automation`
+3. Add a trigger for when the robot error (and alert if you have a gen3 robot and want to) changes
+4. Make it send a notification or a request to a notification service like unifiedpush.
+
+![Home Assistant Notifications Automation](pics/setup/ha-step_6-notifications.png)
+
+For the notification, I would make the message:
+```yaml
+Alert: {{ state_attr('vacuum.template_neato_vacuum', 'alert') }}
+Error: {{ state_attr('vacuum.template_neato_vacuum', 'error') }}
+```
+
+Remove the alert part in case you don't have a gen3 robot. You can also use the esphome sensor directly if you don't want to use the vacuum entity like: `{{ states('sensor.neato_vacuum_robot_error') }}`
 
 ## Step 7
 **Before you make a permanent installation, make sure it all works via Home Assistant as you want it to!**

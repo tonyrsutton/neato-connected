@@ -1,4 +1,4 @@
-### Hidden commands I found with the 3.2.0 /bin/robot but works in 4.5.3
+### Some of the hidden commands for gen3 robots
 
 ```
 Log
