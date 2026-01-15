@@ -1,22 +1,22 @@
 # Install internally
 
-**Warning: before opening up the robot, make sure to open the battery compartment and remove the battery. We will include this again step in the step-by-step procedure.**
+**Warning: Before opening up the robot, make sure to open the battery compartment and remove the battery. We will include this again step in the step-by-step procedure.**
 
-The pictures here are from a D5 but should be similar for others. Please read the guide fully before doing it yourself!
+The pictures here are from a D5 but should be similar for others. Please read the guide fully before doing it yourself.
 
 ## What you need
-- protective cover for your work surface
+- Protective cover for your work surface
 - Long T10 Torx bit + bit holder
 - Philips screwdriver
 - The ESP you flashed
-- [One male JST-XH cable](https://www.amazon.com/dp/B0D9R3MP4G?ref=cm_sw_r_cso_cp_apan_dp_N8757APDHEV6D087T3VR&ref_=cm_sw_r_cso_cp_apan_dp_N8757APDHEV6D087T3VR&social_share=cm_sw_r_cso_cp_apan_dp_N8757APDHEV6D087T3VR&titleSource=true)
+- [One male JST-XH cable](https://www.amazon.com/dp/B0D9R3MP4G) - NOTE: Amazon USA
 - A soldering iron
 - 4 pieces of about 10 cm of wire
 - 4 pieces of heath shrink tubing
-- [4x Dupont connector and crimping tool](https://a.co/d/8DN4Z0P)
+- [4x Dupont connector and crimping tool](https://www.amazon.com/dp/B0DRK17PTW) - NOTE: Amazon USA
 - Electrical tape (preferably black)
 - Electrical masking tape / Kapton tape to prevent shorts
-- (optional) Hot glue
+- (Optional) Hot Glue
 - Ability to follow written instructions and basic soldering
 - About 15 minutes of time
 
