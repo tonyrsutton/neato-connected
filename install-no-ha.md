@@ -12,7 +12,6 @@ You can also use this method without Home Assistant, however only version 1 will
 5. Fix ESP device inside or outside robot
 6. Enjoy a locally connected vacuum & how to install updates
 
-
 ### Step 1
 I have made some prebuilt images for reccomended ESP32s, however, if you have another ESP32 that is not listed here, ask me and I will build you one!
 # TODO: add links
