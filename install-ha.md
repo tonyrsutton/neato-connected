@@ -1,6 +1,6 @@
 # Install with Home Assistant
 
-My initial, and recommened, way to use this method. All versions of this method will be supported via this route, later versions should be much easier since I plan on making it all as one package on HACS. (ESPHome will probably still be required)
+My initial, and recommened, way to use this repair. All versions of this repair will be supported via this route, later versions should be much easier since I plan on making it all as one package on HACS. (ESPHome will probably still be required)
 
 # TODO: add images
 
