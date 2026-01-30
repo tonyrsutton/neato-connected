@@ -1300,6 +1300,22 @@ button:
     entity_category: "diagnostic"
 
   - platform: template
+    name: "Clear All Alerts & Errors 2"
+    icon: mdi:notification-clear-all
+    on_press:
+      - script.execute:
+          id: send_event
+          event: "UIMGR_EVENT_SMARTAPP_CLEAR_ALERT"
+    entity_category: "diagnostic"
+
+  - platform: template
+    name: "Clear All Alerts & Errors 3"
+    icon: mdi:notification-clear-all
+    on_press:
+      - uart.write: "GetErr clear \n"
+    entity_category: "diagnostic"
+
+  - platform: template
     name: "Shutdown"
     icon: mdi:power
     on_press:
