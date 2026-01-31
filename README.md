@@ -55,17 +55,17 @@ Since there is a couple of robots from neato and they have different firmware ve
     - Neato Botvac D75
     - Neato Botvac D80
     - Neato Botvac D85
-    - Neato Botvac Connected **(Non DX)** `905-0249`
+    - Neato Botvac Connected **(Non DX)** `905-0249`, `905-0317`
 - `gen3` - (Generation 3)
-    - Neato Botvac D3 Connected `905-0321`
-    - Neato Botvac D4 Connected `905-0499`
-    - Neato Botvac D5 Connected `905-0358`
-    - Neato Botvac D6 Connected `905-0496`
-    - Neato Botvac D7 Connected `905-0415`
+    - Neato Botvac D3 Connected `905-0321`, `905-0437`, `905-0327`
+    - Neato Botvac D4 Connected `905-0499`, `905-0514`
+    - Neato Botvac D5 Connected `905-0358`, `905-0357`, `905-0402`
+    - Neato Botvac D6 Connected `905-0496`, `905-0517`
+    - Neato Botvac D7 Connected `905-0415`, `905-0537`
 - `gen 4` (Generation 4) - Sadly not yet supported
-    - Neato D800 (probably the same as the d8-d10, not confirmed tho)
+    - Neato D800 (very very likely the same as the d8-d10, not confirmed tho)
     - Neato D8 Intelligent `905-09596`
-    - Neato D9 Intelligent `905-`
+    - Neato D9 Intelligent `905-0559`
     - Neato D10 Intelligent `905-`
 
 
@@ -90,26 +90,13 @@ Since there is a couple of robots from neato and they have different firmware ve
 
 The ability to create, view and edit floormaps so the robot can get the same functionallity with nogo-lines and zones is in the making.
 
-### What is supported?
-
-**We would like to support all robots where an debug interface, or other controls, is accessible!**
-
-As far as we know, only the D3, D4, D5, D6 and D7 has the firmware `4.5.3` and currenly the config is based on that so the robots that should work with that firmware is as follows:
-- Confirmed working: **D3, D4, D5, D6, D7**
-- Should work with some work: **D70-D85, Connected, XV-series [maybe others? please get in touch!]**
-
 The reason this works on all neato robots is because they all have the command interface, even the robots that originally don't have any wifi will still work, since it is no longer wifi robot that is connecting to the wifi, it is the ESP device. This also removes any limitations the robots wifi may have had.
 
-**Trickier robots**
-- D8 (probably D9, D10) - These robots use a compleatly different board, chip and firmware, and because the debug interface seams to be behind a password lock, this cannot be controlled directly. If you have one of these and are willing to tinker, please get in touch!
+**`gen1` robots**
+- We are currently looking into the best way to connect to these, please join the discord where we are currently talking about the best way to do it and the experimentation going on!
 
-### What do I need?
-- You need access to an USB port or the debug pins
-    - We will be going through the different options to access these pins
-- An ESPHome capable device
-    - I would recommend an ESP32
-- Cables to connect the robot to the ESP device
-- The rest depends on your install!
+**`gen4` robots**
+- These robots use a compleatly different board, chip and firmware, and we cannot interface with these directly. However one idea to get the start/stop feature back is to wire an esp32 to the button itself, join the discord or open an discussion here so we can discuss! 
 
 # Getting started!
 
@@ -126,9 +113,9 @@ First of all we need to get the version of your robot; to do this do the followi
 6. Look for the line with `Software`, this should be `Software,X,X,X,X,X`
 
 Since we are parsing the data from the serial interface we need to be on the same verion of the robot firmware, this is what has been confirmed working:
-| `gen1`  | `gen2`  | `gen3` |
-|---|---|---|
-| `3.2` | `2.2.0` or `2.2.1` | `4.5.3` or `4.6.0` |
+| `gen2`  | `gen3` |
+|---|---|
+| `2.2.0` or `2.2.1` | `4.5.3` or `4.6.0` |
 
 If you have another version then these; please get in touch!
 
