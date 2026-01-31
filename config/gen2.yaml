@@ -20,7 +20,7 @@ substitutions:
 
   # ---- Version and robot type ----
   version: "1.2-b.5" # THIS IS A BETA VERSION!
-  type: "gen3"
+  type: "gen2"
   buildinfo: "${version}-[${uart_tx}/${uart_rx}]"
   # --------------------------------
 
@@ -81,18 +81,6 @@ esphome:
       then:
         - lambda: !lambda |-
             id(uiState).publish_state("Starting...");
-
-            ESPTime t = ESPTime::from_epoch_local(id(g_last_cleaning_start_time));
-            std::string ts = t.strftime("%Y-%m-%d %H:%M:%S");
-            id(last_cleaning_time).publish_state(ts.c_str());
-
-            if (id(g_last_cleaning_type) == 0) {
-              id(last_cleaning_type).publish_state("HOUSE");
-            } else if (id(g_last_cleaning_type) == 1) {
-              id(last_cleaning_type).publish_state("SPOT");
-            }
-
-            id(last_cleaning_duration).publish_state(id(g_last_cleaning_duration));
 
             // Update nbs_time and text entity from persisted global
             if (!id(g_timezone).empty()) {
@@ -161,15 +149,11 @@ script:
     then: 
       - uart.write: "GetErr \n"  
       - delay: 50ms  
-      - uart.write: "GetState \n"    
-      - delay: 50ms  
       - uart.write: "GetCharger \n"    
       - delay: 50ms  
       - uart.write: "GetUserSettings \n"  
       - delay: 50ms
-      - uart.write: "GetWarranty \n"
-      - delay: 50ms  
-      - uart.write: "TestMode \n"
+      - uart.write: "SetSystemMode \n"
       - delay: 50ms  
       - uart.write: "GetVersion \n"    
   
@@ -196,18 +180,6 @@ script:
       - delay: 100ms
       - uart.write: "SetSystemMode PowerCycle \n"
 
-  - id: cleaning_stopped
-    then: 
-      - lambda: !lambda |-
-          uint64_t now_ts = id(nbs_time).now().timestamp;
-          uint64_t start_ts = id(g_last_cleaning_start_time);
-
-          if (start_ts > 0) {
-              uint32_t duration_min = (now_ts - start_ts) / 60;
-              id(g_last_cleaning_duration) = duration_min;
-              id(last_cleaning_duration).publish_state(duration_min);
-          }
-
   - id: play_extra_sounds
     parameters:
       soundid: int
@@ -222,15 +194,6 @@ script:
                   "PlaySound SoundId " + std::to_string(soundid) + "\n";
                 return std::vector<uint8_t>(s.begin(), s.end());
 
-  - id: send_event
-    parameters:
-      event: string
-    then:
-      - uart.write: !lambda |-
-          std::string s =
-            "SetEvent event " + event + " SKey " + id(robot_skey) + "\n";
-          return std::vector<uint8_t>(s.begin(), s.end());
-
 
 globals:
   - id: initial_ready
@@ -238,23 +201,7 @@ globals:
     restore_value: no
     initial_value: 'false'
 
-  - id: robot_skey
-    type: std::string
-    restore_value: no
-
   # --- Restore Value ---
-  - id: g_last_cleaning_start_time
-    type: uint64_t
-    restore_value: yes
-
-  - id: g_last_cleaning_type
-    type: uint32_t
-    restore_value: yes
-
-  - id: g_last_cleaning_duration
-    type: uint32_t
-    restore_value: yes
-
   - id: g_play_extra_sounds
     type: bool
     restore_value: yes
@@ -274,7 +221,6 @@ interval:
   - interval: ${infointerval}
     then:
       - uart.write: "GetErr \n"
-      - uart.write: "GetState \n"
   - interval: ${chargerinterval}
     then: 
       - uart.write: "GetCharger \n"
@@ -350,25 +296,16 @@ uart:
 
           // ---- SPECIAL PARSING FOR GetErr ----
           if (command == "GetErr") {
-            // A GetErr response looks like for gen3:
+            // A GetErr response looks like for gen2:
             // 0: GetErr
-            // 1: Error
-            // 2: <error1>
-            // 3: Alert
-            // 4: <error2>
-            // 5: USB state
-            // 6: NOT connected
+            // 1: <error>
 
-            if (lines.size() < 7) return;
-            if (lines[1] != "Error" || lines[3] != "Alert") return;
-
-            id(robotError).publish_state(lines[2].c_str());
-            id(robotAlert).publish_state(lines[4].c_str());
-            id(usbConnected).publish_state(lines[6].find("NOT connected") == std::string::npos);
+            if (lines.size() == 2) id(robotError).publish_state(lines[1].c_str());
 
             // If we can get erros/alerts, the system is ready for other commands:
             if (!id(initial_ready)) {
                 id(initial_ready) = true;
+                id(uiState).publish_state("Started, ready for commands!");
                 id(initial_data_get).execute();
             }
           }
@@ -412,30 +349,12 @@ uart:
             }
           }
 
-          else if (command == "GetWarranty") {
-              // Format after the header:
-              // Item,Value
-              // CumulativeCleaningTimeInSecs,001ce34f
-              // CumulativeBatteryCycles,01f7
-              // ValidationCode,15648b6e
-
-              for (size_t i = 2; i < lines.size(); i++) {
-                  std::string &line = lines[i];
-                  size_t comma = line.find(',');
-                  if (comma == std::string::npos) continue;
-
-                  std::string key = line.substr(0, comma);
-                  std::string value = line.substr(comma + 1);
-
-                  // Trim whitespace
-                  trim(key);
-                  trim(value);
-                  
-                  if (key == "CumulativeBatteryCycles") {
-                      uint32_t cycles = hex_to_uint32(value);
-                      id(batteryCycles).publish_state(cycles);
-                  }
-              }
+          else if (command == "SetSystemMode") { // Using this command to figure out if you have testmode on or off
+            // 0: SetSystemMode
+            // 1: "TestMode must be on to use this command." OR "No options specified"
+            if (lines.size() != 2) return;
+            if (lines[1] == "No options specified") id(testMode).publish_state(true);
+            else if (lines[1] == "TestMode must be on to use this command.") id(testMode).publish_state(false);
           }
 
           else if (command == "GetVersion") {
@@ -453,73 +372,6 @@ uart:
               else if (key == "Software") id(robotSoftware).publish_state(value.c_str());
             }
           }
-          else if (command == "TestMode") {
-            if (lines[1].find(": On") != std::string::npos) id(testMode).publish_state(true);
-            else if (lines[1].find(": Off") != std::string::npos) id(testMode).publish_state(false);
-          } 
-          
-          else if (command == "GetState") {
-              std::string &states_line = lines[1];  // "Current UI State is: ...\nCurrent Robot State is: ...\n\x1A"
-
-              size_t sep = states_line.find('\n');
-              if (sep == std::string::npos) return;  // safety
-
-              std::string ui_line = states_line.substr(0, sep);
-              std::string robot_line = states_line.substr(sep + 1);
-
-              static const char* prefix_ui = "Current UI State is: ";
-              static const char* prefix_robot = "Current Robot State is: ";
-
-              // Extract UI state
-              if (ui_line.find(prefix_ui) == 0) {
-                  std::string ui_state = ui_line.substr(strlen(prefix_ui));
-                  trim(ui_state);
-                  std::string old_state = id(uiState).state;
-
-                  bool old_spot = (old_state == "UIMGR_STATE_SPOTCLEANINGPAUSED" ||
-                                  old_state == "UIMGR_STATE_SPOTCLEANINGRUNNING");
-
-                  bool new_spot = (ui_state == "UIMGR_STATE_SPOTCLEANINGPAUSED" ||
-                                  ui_state == "UIMGR_STATE_SPOTCLEANINGRUNNING");
-
-                  bool old_house = (old_state == "UIMGR_STATE_HOUSECLEANINGPAUSED" ||
-                                    old_state == "UIMGR_STATE_HOUSECLEANINGRUNNING");
-
-                  bool new_house = (ui_state == "UIMGR_STATE_HOUSECLEANINGPAUSED" ||
-                                    ui_state == "UIMGR_STATE_HOUSECLEANINGRUNNING");
-                  // Cleaning started
-                  if (!old_spot && new_spot) {
-                      // Mark start time
-                      id(g_last_cleaning_start_time) = id(nbs_time).now().timestamp;
-                      id(g_last_cleaning_type) = 1;  // SPOT = 1
-
-                      id(last_cleaning_time).publish_state(id(nbs_time).now().strftime("%Y-%m-%d %H:%M:%S"));
-                      id(last_cleaning_type).publish_state("SPOT");
-                  } else if (!old_house && new_house) {
-                      id(g_last_cleaning_start_time) = id(nbs_time).now().timestamp;
-                      id(g_last_cleaning_type) = 0;  // HOUSE = 0
-
-                      id(last_cleaning_time).publish_state(id(nbs_time).now().strftime("%Y-%m-%d %H:%M:%S"));
-                      id(last_cleaning_type).publish_state("HOUSE");
-                  } else {
-                      // Cleaning stopped
-                      bool old_cleaning = old_spot || old_house;
-                      bool new_cleaning = new_spot || new_house;
-
-                      if (old_cleaning && !new_cleaning) id(cleaning_stopped).execute();
-                  }
-
-                  id(uiState).publish_state(ui_state.c_str());
-              }
-
-              // Extract Robot state
-              if (robot_line.find(prefix_robot) == 0) {
-                  std::string robot_state = robot_line.substr(strlen(prefix_robot));
-                  trim(robot_state);
-                  id(robotState).publish_state(robot_state.c_str());
-              }
-          }
-
 
           else if (command == "GetUserSettings") {
             for (auto &line : lines) {
@@ -537,7 +389,9 @@ uart:
                 trim(value);
 
                      if (key == "ClickSounds") id(clickSounds).publish_state(value == "ON");
+                else if (key == "StealthLED") id(stealthLed).publish_state(value == "ON");
                 else if (key == "LED") id(led).publish_state(value == "ON");
+                else if (key == "AutoShutdown") id(autoShutdownEnabled).publish_state(value == "ON");
                 else if (key == "Wall Enable") id(wallEnable).publish_state(value == "ON");
                 else if (key == "Eco Mode") id(ecoMode).publish_state(value == "ON");
                 else if (key == "IntenseClean") id(intenseClean).publish_state(value == "ON");
@@ -545,23 +399,11 @@ uart:
                 else if (key == "Melody Sounds") id(melodySounds).publish_state(value == "ON");
                 else if (key == "Warning Sounds") id(warningSounds).publish_state(value == "ON");
                 else if (key == "Bin Full Detect") id(binFullDetect).publish_state(value == "ON");
-                else if (key == "Filter Change Time (seconds)") id(filterChangeTime).publish_state(atof(value.c_str()));
-                else if (key == "Brush Change Time (seconds)") id(brushChangeTime).publish_state(atof(value.c_str()));
-                else if (key == "Dirt Bin Alert Reminder Interval (minutes)") id(dirtBinAlertReminder).publish_state(atof(value.c_str()));
               } 
-              // ---- Special lines without commas ----
-              else if (line.find("Current Dirt Bin Runtime is:") == 0) {
-                std::string val = line.substr(strlen("Current Dirt Bin Runtime is:"));
-                trim(val);
-                id(currentDirtBinRuntime).publish_state(atof(val.c_str()));
-              } 
-              else if (line.find("Number of Cleanings where Dust Bin was Full is:") == 0) {
-                std::string val = line.substr(strlen("Number of Cleanings where Dust Bin was Full is:"));
-                trim(val);
-                id(numberDustBinFull).publish_state(atof(val.c_str()));
-              } 
+              else if (line.find("Schedule is Enabled") != std::string::npos) id(scheduleEnabled).publish_state(true);
+              else if (line.find("Schedule is Disabled") != std::string::npos) id(scheduleEnabled).publish_state(false);
             }
-          } else if (command.find("ARCHES Board") != std::string::npos) id(uiState).publish_state("Starting...");
+          } else if (command.find("<Fast Memory>") != std::string::npos) id(uiState).publish_state("Starting...");
 
 
 time:
@@ -709,58 +551,8 @@ sensor:
     unit_of_measurement: "mAh"
     entity_category: "diagnostic"
 
-  # --- GetUserSettings ---
-  - platform: template
-    name: "Filter Change Time"
-    id: filterChangeTime
-    unit_of_measurement: "s"
-    entity_category: "diagnostic"
-
-  - platform: template
-    name: "Brush Change Time"
-    id: brushChangeTime
-    unit_of_measurement: "s"
-    entity_category: "diagnostic"
-
-  - platform: template
-    name: "Dirt Bin Alert Reminder"
-    id: dirtBinAlertReminder
-    unit_of_measurement: "min"
-    entity_category: "diagnostic"
-
-  - platform: template
-    name: "Current Dirt Bin Runtime"
-    id: currentDirtBinRuntime
-    unit_of_measurement: "s"
-    entity_category: "diagnostic"
-
-  - platform: template
-    name: "Number of Full Dust Bin Cleanings"
-    id: numberDustBinFull
-    unit_of_measurement: "count"
-    entity_category: "diagnostic"
-
-  # --- GetWarranty ---
-  - platform: template
-    name: "Battery Cycles"
-    id: batteryCycles
-    unit_of_measurement: "cycles"
-    entity_category: "diagnostic"
-
-  # --- Last cleaning ---
-  - platform: template
-    name: "Last cleaning duration"
-    id: last_cleaning_duration
-    unit_of_measurement: "min"
-
 
 binary_sensor:
-  # --- GetErr ---
-  - platform: template
-    id: usbConnected
-    name: "USB Connected"
-    entity_category: "diagnostic"
-
   # --- GetCharger ---
   - platform: template
     id: chargerBatteryOverTemp
@@ -818,84 +610,16 @@ text_sensor:
       snprintf(buf, sizeof(buf), "%02d:%02d", t.hour, t.minute);
       return std::string(buf);
 
-  # --- Last cleaning ---
-  - platform: template
-    name: "Last cleaning time"
-    id: last_cleaning_time
-
-  - platform: template
-    name: "Last cleaning type"
-    id: last_cleaning_type
-
   # --- GetErr ---
   - platform: template
     id: robotError
     name: "Robot Error"
-
-  - platform: template
-    id: robotAlert
-    name: "Robot Alert"
 
   # --- GetVersion ---
   - platform: template
     id: robotSerial
     name: "Serial Number"
     entity_category: "diagnostic"
-    on_value: 
-      then:
-        - lambda: !lambda |-
-            // Get the mac address, abort  if the serial is malformed
-            size_t comma_pos = x.find(',');
-            if (comma_pos == std::string::npos) {
-              ESP_LOGE("config", "Serial invalid (no comma): %s", x.c_str());
-              abort();
-            }
-
-            std::string mac = x.substr(comma_pos + 1, 12);
-
-            if (mac.length() != 12) {
-              ESP_LOGE("config", "Invalid MAC length (%d): %s", mac.length(), mac.c_str());
-              abort();
-            }
-
-            // Calculate based on mac
-            static uint8_t t1[256];
-            static uint8_t t2[256];
-            static char result[128];
-            const uint8_t byte_array[] = { 0x68, 0x36, 0x43, 0x58, 0x09, 0x09, 0x3A, 0x3C, 0x2A, 0x7B, 0x59 };
-
-            for (int i = 0; i < 256; i++)
-              t1[i] = i;
-
-            int j = 0, i = 0;
-            for (int i = 0; i < 256; i++) {
-              j = (j + t1[i] + byte_array[i % 11]) & 0xFF;
-              uint8_t tmp = t1[i];
-              t1[i] = t1[j];
-              t1[j] = tmp;
-            }
-
-            j = 0;
-            for (size_t k = 0; k < 12; k++) {
-              i = (i + 1) & 0xFF;
-              j = (j + t1[i]) & 0xFF;
-
-              uint8_t tmp = t1[i];
-              t1[i] = t1[j];
-              t1[j] = tmp;
-
-              t2[k] = t1[(t1[i] + t1[j]) & 0xFF];
-            }
-
-            size_t len = mac.length();
-
-            for (size_t j = 0; j < len; j++) {
-              snprintf(&result[j * 2], 3, "%02x", t2[j] ^ (uint8_t) mac[j]);
-            }
-
-            result[len * 2] = result[len / 2];
-            id(robot_skey) = std::string(result);
-
 
   - platform: template
     id: robotModel
@@ -912,11 +636,6 @@ text_sensor:
     name: "UI State"
     id: uiState
 
-  - platform: template
-    name: "Robot State"
-    id: robotState
-
-
 switch:
   - platform: template
     name: "Test Mode"
@@ -925,11 +644,11 @@ switch:
     turn_on_action:
       - uart.write: "TestMode On \n"
       - delay: 500ms
-      - uart.write: "TestMode \n"
+      - uart.write: "SetSystemMode \n"
     turn_off_action:
       - uart.write: "TestMode Off \n"
       - delay: 500ms
-      - uart.write: "TestMode \n"
+      - uart.write: "SetSystemMode \n"
     entity_category: "diagnostic"
 
   - platform: template
@@ -956,14 +675,38 @@ switch:
     entity_category: "diagnostic"
 
   - platform: template
-    name: "LED"
+    name: "StealthLED"
     optimistic: true
-    id: led
+    id: stealthLed
     turn_on_action:
       - uart.write: "SetUserSettings StealthLED ON \n"
       - script.execute: get_user_settings
     turn_off_action:
       - uart.write: "SetUserSettings StealthLED OFF \n"
+      - script.execute: get_user_settings
+    entity_category: "diagnostic"
+
+  - platform: template
+    name: "LEDs enabled"
+    optimistic: true
+    id: led
+    turn_on_action:
+      - uart.write: "SetUserSettings LEDEnable ON \n"
+      - script.execute: get_user_settings
+    turn_off_action:
+      - uart.write: "SetUserSettings LEDEnable OFF \n"
+      - script.execute: get_user_settings
+    entity_category: "diagnostic"
+
+  - platform: template
+    name: "AutoShutdown"
+    optimistic: true
+    id: autoShutdownEnabled
+    turn_on_action:
+      - uart.write: "SetUserSettings AutoShutdown ON \n"
+      - script.execute: get_user_settings
+    turn_off_action:
+      - uart.write: "SetUserSettings AutoShutdown OFF \n"
       - script.execute: get_user_settings
     entity_category: "diagnostic"
 
@@ -1053,6 +796,18 @@ switch:
       - script.execute: get_user_settings
     entity_category: "diagnostic"
 
+  - platform: template
+    name: "Robot Schedule"
+    optimistic: true
+    id: scheduleEnabled
+    turn_on_action:
+      - uart.write: "SetUserSettings Schedule ON \n"
+      - script.execute: get_user_settings
+    turn_off_action:
+      - uart.write: "SetUserSettings Schedule OFF \n"
+      - script.execute: get_user_settings
+    entity_category: "diagnostic"
+
 
 number:
   # --- Spot cleaning ---
@@ -1081,22 +836,6 @@ select:
   - platform: logger
     name: "Logger select"
 
-  - platform: template
-    name: "Navigation Mode"
-    id: navigationMode
-    optimistic: true
-    options:
-      - "Normal"
-      - "Gentle"
-      - "Deep"
-      - "Quick"
-    icon: "mdi:robot-vacuum"
-    on_value:
-      then:
-        - uart.write: !lambda |-
-            std::string cmd = std::string("SetNavigationMode ") + x + "\n";
-            return std::vector<uint8_t>(cmd.begin(), cmd.end());
-
 
 button:
   - platform: template
@@ -1107,9 +846,7 @@ button:
       - script.execute:
           id: play_extra_sounds
           soundid: 1
-      - script.execute:
-          id: send_event
-          event: "UIMGR_EVENT_SMARTAPP_START_HOUSE_CLEANING"
+      - uart.write: "SetButton start \n"
 
   - platform: template
     name: "Spot Clean"
@@ -1118,9 +855,7 @@ button:
       - script.execute:
           id: play_extra_sounds
           soundid: 1
-      - script.execute:
-          id: send_event
-          event: "UIMGR_EVENT_SMARTAPP_START_SPOT_CLEANING"
+      - uart.write: "SetButton spot \n"
 
   - platform: template
     name: "Spot Clean (Height & Width)"
@@ -1140,151 +875,35 @@ button:
     name: "Stop Cleaning"
     icon: mdi:stop
     on_press:
-      - script.execute:
-          id: send_event
-          event: "UIMGR_EVENT_SMARTAPP_STOP_CLEANING"
+      - uart.write: "SetButton start \n"
+      - delay: 1250ms
+      - uart.write: "SetButton soft \n"
 
   - platform: template
     name: "Pause Cleaning"
     icon: mdi:pause
     on_press:
-      - script.execute:
-          id: send_event
-          event: "UIMGR_EVENT_SMARTAPP_PAUSE_CLEANING"
-
-  - platform: template
-    name: "Send to base"
-    icon: mdi:home
-    on_press:
-      - script.execute:
-          id: send_event
-          event: "UIMGR_EVENT_SMARTAPP_SEND_TO_BASE"
+      - uart.write: "SetButton start \n"
 
   - platform: template
     name: "Resume Cleaning"
     icon: mdi:play
     on_press:
-      - script.execute:
-          id: send_event
-          event: "UIMGR_EVENT_SMARTAPP_RESUME_CLEANING"
+      - uart.write: "SetButton start \n"
+
+  - platform: template
+    name: "Send to start"
+    icon: mdi:house
+    on_press:
+      - uart.write: "SetButton down \n"
+      - delay: 1250ms
+      - uart.write: "SetButton soft \n"
 
   - platform: template
     name: "Locate Robot"
     icon: mdi:volume-high
     on_press:
-      - uart.write: "PlaySound SoundId 20 \n"  
-
-  - platform: template
-    name: "Manual Drive Forward Up"
-    icon: mdi:arrow-up
-    on_press:
-      - script.execute:
-          id: send_event
-          event: "UIMGR_EVENT_SMARTAPP_DRIVE_MANUAL_FORWARD_UP"
-
-  - platform: template
-    name: "Manual Drive Backwards Up"
-    icon: mdi:arrow-down
-    on_press:
-      - script.execute:
-          id: send_event
-          event: "UIMGR_EVENT_SMARTAPP_DRIVE_MANUAL_BACKWARDS_UP"
-
-  - platform: template
-    name: "Manual Drive Turn Left Up"
-    icon: mdi:arrow-left
-    on_press:
-      - script.execute:
-          id: send_event
-          event: "UIMGR_EVENT_SMARTAPP_DRIVE_MANUAL_TURN_LEFT_UP"
-
-  - platform: template
-    name: "Manual Drive Turn Right Up"
-    icon: mdi:arrow-right
-    on_press:
-      - script.execute:
-          id: send_event
-          event: "UIMGR_EVENT_SMARTAPP_DRIVE_MANUAL_TURN_RIGHT_UP"
-
-  - platform: template
-    name: "Manual Drive Arc Left Up"
-    icon: mdi:rotate-left
-    on_press:
-      - script.execute:
-          id: send_event
-          event: "UIMGR_EVENT_SMARTAPP_DRIVE_MANUAL_ARC_LEFT_UP"
-
-  - platform: template
-    name: "Manual Drive Arc Right Up"
-    icon: mdi:rotate-right
-    on_press:
-      - script.execute:
-          id: send_event
-          event: "UIMGR_EVENT_SMARTAPP_DRIVE_MANUAL_ARC_RIGHT_UP"
-
-  - platform: template
-    name: "Manual Drive Forward Down"
-    icon: mdi:arrow-up-bold
-    on_press:
-      - script.execute:
-          id: send_event
-          event: "UIMGR_EVENT_SMARTAPP_DRIVE_MANUAL_FORWARD_DOWN"
-
-  - platform: template
-    name: "Manual Drive Backwards Down"
-    icon: mdi:arrow-down-bold
-    on_press:
-      - script.execute:
-          id: send_event
-          event: "UIMGR_EVENT_SMARTAPP_DRIVE_MANUAL_BACKWARDS_DOWN"
-
-  - platform: template
-    name: "Manual Drive Turn Left Down"
-    icon: mdi:arrow-left-bold
-    on_press:
-      - script.execute:
-          id: send_event
-          event: "UIMGR_EVENT_SMARTAPP_DRIVE_MANUAL_TURN_LEFT_DOWN"
-
-  - platform: template
-    name: "Manual Drive Turn Right Down"
-    icon: mdi:arrow-right-bold
-    on_press:
-      - script.execute:
-          id: send_event
-          event: "UIMGR_EVENT_SMARTAPP_DRIVE_MANUAL_TURN_RIGHT_DOWN"
-
-  - platform: template
-    name: "Manual Drive Arc Left Down"
-    icon: mdi:rotate-left
-    on_press:
-      - script.execute:
-          id: send_event
-          event: "UIMGR_EVENT_SMARTAPP_DRIVE_MANUAL_ARC_LEFT_DOWN"
-
-  - platform: template
-    name: "Manual Drive Arc Right Down"
-    icon: mdi:rotate-right
-    on_press:
-      - script.execute:
-          id: send_event
-          event: "UIMGR_EVENT_SMARTAPP_DRIVE_MANUAL_ARC_RIGHT_DOWN"
-
-  - platform: template
-    name: "Manual Drive Button Timeout"
-    icon: mdi:timer-off
-    on_press:
-      - script.execute:
-          id: send_event
-          event: "UIMGR_EVENT_SMARTAPP_DRIVE_MANUAL_BTN_TIMEOUT"
-
-  - platform: template
-    name: "Start Manual Cleaning"
-    icon: mdi:play-circle
-    on_press:
-      - script.execute:
-          id: send_event
-          event: "UIMGR_EVENT_SMARTAPP_START_MANUAL_CLEANING"
+      - uart.write: "PlaySound SoundId 2 \n"  
 
   - platform: template
     name: "Update status"
@@ -1297,9 +916,7 @@ button:
     name: "Clear errors"
     icon: mdi:notification-clear-all
     on_press:
-      - script.execute:
-          id: send_event
-          event: "UIMGR_EVENT_SMARTAPP_CLEAR_ALERT"
+      - uart.write: "GetErr clear \n"
     entity_category: "diagnostic"
 
   - platform: template
