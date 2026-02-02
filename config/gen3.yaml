@@ -19,7 +19,7 @@ substitutions:
   chargerinterval: 2min
 
   # ---- Version and robot type ----
-  version: "1.2-b.5" # THIS IS A BETA VERSION!
+  version: "1.2-b.6" # THIS IS A BETA VERSION!
   type: "gen3"
   buildinfo: "${version}-[${uart_tx}/${uart_rx}]"
   # --------------------------------
@@ -30,7 +30,7 @@ substitutions:
 # If you don't want the webserver, uncomment/remove this part
 web_server:
   port: 80
-  js_url: "https://philip2809.github.io/neato-connected/esphome-config/1.2-b.5.js"
+  js_url: "https://philip2809.github.io/neato-connected/esphome-config/1.2-b.6.js"
 
 logger:
   baud_rate: 0
@@ -1297,9 +1297,8 @@ button:
     name: "Clear errors"
     icon: mdi:notification-clear-all
     on_press:
-      - script.execute:
-          id: send_event
-          event: "UIMGR_EVENT_SMARTAPP_CLEAR_ALERT"
+      then:
+        - uart.write: "SetUIError clearall \n"
     entity_category: "diagnostic"
 
   - platform: template
