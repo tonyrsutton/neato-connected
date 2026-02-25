@@ -2,7 +2,7 @@
 
 My initial, and recommened, way to use this repair. All versions of this repair will be supported via this route, later versions should be much easier since I plan on making it all as one package on HACS. (ESPHome will probably still be required)
 
-# TODO: add images
+![HA Card](pics/setup/ha-card.png)
 
 **Overview of steps:**
 1. Setup HACS and install required add-ons
