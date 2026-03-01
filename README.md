@@ -90,6 +90,8 @@ Since there is a couple of robots from neato and they have different firmware ve
 - ² - Support can be added by version 1
 - ³ - Support can be added by version 2
 
+Please refer to the [status.md](./status.md) for project status, roadmap and version meanings!
+
 The ability to create, view and edit floormaps so the robot can get the same functionallity with nogo-lines and zones is in the making.
 
 The reason this works on all neato robots is because they all have the command interface, even the robots that originally don't have any wifi will still work, since it is no longer wifi robot that is connecting to the wifi, it is the ESP device. This also removes any limitations the robots wifi may have had.
