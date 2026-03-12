@@ -111,7 +111,7 @@ First of all we need to get the version of your robot, do this at the [Version C
 Since we are parsing the data from the serial interface we need to be on the same verion of the robot firmware, this is what has been confirmed working:
 | `gen2`  | `gen3` |
 |---|---|
-| `2.2.0` or `2.2.1` | `4.5.3` or `4.6.0` |
+| `2.2.0` or `2.2.1` | `4.5.3` or `4.6.0` (note, many `4.X.X` versions will work) |
 
 If you have another version then these; please get in touch!
 
