@@ -18,7 +18,7 @@
 
 ### Version 1
 
-#### Version 1.2 - in beta
+#### Version 1.2
 - Add support for Connected, D70-D85, XV-series
 - Event based commands, return to dock and manual driving for D3-D7
 - Full non-home assistant version

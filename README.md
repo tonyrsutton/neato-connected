@@ -66,7 +66,7 @@ Since there is a couple of robots from Neato and they have different firmware ve
     - Neato D800 (very very likely the same as the d8-d10, not confirmed tho)
     - Neato D8 Intelligent `905-09596`
     - Neato D9 Intelligent `905-0559`
-    - Neato D10 Intelligent `905-`
+    - Neato D10 Intelligent `905-0724`
 
 
 | Feature | `gen1` | `gen2` | `gen3` |
@@ -90,6 +90,8 @@ Since there is a couple of robots from Neato and they have different firmware ve
 - ² - Support can be added by version 1
 - ³ - Support can be added by version 2
 
+Please refer to the [status.md](./status.md) for project status, roadmap and version meanings!
+  
 The ability to create, view and edit floormaps so the robot can get the same functionallity with no-go lines and zones is in the making.
 
 The reason this works on all Neato robots is because they all have the command interface, even the robots that originally don't have any WiFi, will still work, since it is no longer WiFi robot that is connecting to the WiFi, it is the ESP device. This also removes any limitations the robots WiFi may have had.
@@ -104,20 +106,12 @@ The reason this works on all Neato robots is because they all have the command i
 
 To get this up and running, you will need to connect to the debug port or USB port on the robot. The XV-series robots have the USB port on the back, the rest has it in the dustbin area, making it inaccessible when using, for these robots we need to connect via the serial debug port, you would also need to do this if you are installing it internally inside the XV-series. So, sadly for this repair you will need to get some extra hardware to get it up and running; however we are happy to help you out any step along the way!
 
-First of all we need to get the version of your robot; to do this do the following:
-
-0. You will need to use a Chromium based browser, e.g. Chrome
-1. Connect to the USB port of your robot
-2. Go to https://www.serialterminal.com/
-3. Set the `Buad` to `115200`
-4. Click `Connect` and select your vacuum
-5. Send the commmand `GetVersion`
-6. Look for the line with `Software`, this should be `Software,X,X,X,X,X`
+First of all we need to get the version of your robot, do this at the [Version Checker](https://brainslug.phma.dev/version.html)
 
 Since we are parsing the data from the serial interface we need to be on the same verion of the robot firmware, this is what has been confirmed working:
 | `gen2`  | `gen3` |
 |---|---|
-| `2.2.0` or `2.2.1` | `4.5.3` or `4.6.0` |
+| `2.2.0` or `2.2.1` | `4.5.3` or `4.6.0` (note, many `4.X.X` versions will work) |
 
 If you have another version then these; please get in touch!
 
@@ -137,7 +131,7 @@ The config files for the betas will live in the `config` folder instead of the r
 
 ## Star History
 
-[![Star History Chart](https://api.star-history.com/svg?repos=philip2809/neato-connected&type=date&legend=top-left)](https://www.star-history.com/#philip2809/neato-connected&type=date&legend=top-left)
+[![Star History Chart](https://api.star-history.com/svg?repos=philip2809/neato-brainslug&type=date&legend=top-left)](https://www.star-history.com/#philip2809/neato-brainslug&type=date&legend=top-left)
 
 ## Acknowledgements
 
@@ -150,4 +144,4 @@ Analyzing Security in a Hardened IoT Ecosystem](https://www.usenix.org/system/fi
 - [@algaen](https://github.com/algaen) for the info about the D8 (D9, D10?) robots
 - [@tomwj](https://github.com/tomwj) for testing and pictures installing it internally in a D7
 - [@RobertSundling](https://github.com/RobertSundling) for the [firmware files](https://github.com/RobertSundling/neato-botvac)
-
+- [@mikeyp] for the amazing logo

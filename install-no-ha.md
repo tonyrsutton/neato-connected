@@ -17,12 +17,13 @@ You can also use this repair without Home Assistant, however future versions of 
 I have made some prebuilt images for reccomended ESP32s, however, if you have another ESP32 that is not listed here, ask me and I will build you one!
  `gen2`  | `gen3` |
 |---|---|
-| [ESP32](https://github.com/philip2809/neato-connected/releases/latest/download/nbs-gen2-esp32.factory.bin) | [ESP32](https://github.com/philip2809/neato-connected/releases/latest/download/nbs-gen3-esp32.factory.bin) |
-| [ESP32-S3](https://github.com/philip2809/neato-connected/releases/latest/download/nbs-gen2-esp32-s3.factory.bin) | [ESP32-S3](https://github.com/philip2809/neato-connected/releases/latest/download/nbs-gen3-esp32-s3.factory.bin) |
-| [ESP32-C3](https://github.com/philip2809/neato-connected/releases/latest/download/nbs-gen2-esp32-c3.factory.bin) | [ESP32-C3](https://github.com/philip2809/neato-connected/releases/latest/download/nbs-gen3-esp32-c3.factory.bin) |
+| [ESP32](https://github.com/philip2809/neato-brainslug/releases/latest/download/nbs-gen2-esp32.factory.bin) | [ESP32](https://github.com/philip2809/neato-brainslug/releases/latest/download/nbs-gen3-esp32.factory.bin) |
+| [ESP32-S3](https://github.com/philip2809/neato-brainslug/releases/latest/download/nbs-gen2-esp32-s3.factory.bin) | [ESP32-S3](https://github.com/philip2809/neato-brainslug/releases/latest/download/nbs-gen3-esp32-s3.factory.bin) |
+| [ESP32-C3](https://github.com/philip2809/neato-brainslug/releases/latest/download/nbs-gen2-esp32-c3.factory.bin) | [ESP32-C3](https://github.com/philip2809/neato-brainslug/releases/latest/download/nbs-gen3-esp32-c3.factory.bin) |
 
 
 **If your ESP device does not have GPIO 17 and 16, please ask me for a build!**
+**ESP32-C3 HAS TX ON GPIO7 and RX ON GPIO6, so in that case just remove the "1" from the image below, connect the blue wire to GPIO6 and yellow wire to GPIO7**
 
 **If you have multiple vacuums you will need prebuild images with different names or it will be annoying to connect to them, please ask for me for a build!**
 
@@ -65,6 +66,8 @@ This is the webserver of the device. It will show up as not "loading..." since w
     |TX|GPIO16|
     |GND|GND|
 
+    **ESP32-C3 HAS TX ON GPIO7 and RX ON GPIO6, so in that case just remove the "1" from the image below, connect the blue wire to GPIO6 and yellow wire to GPIO7**
+
     ![Connection diagram](pics/setup/step_4-connection-diagram.png)
 4. Turn the robot back on, this should power up the ESP device and you can now go to the webserver interface page we saw before and the data from the robot should now show up!
     ![Webserver connected](pics/setup/step_4-webserver-connected.png)
@@ -82,9 +85,9 @@ Eventually there will be updates, either as new features or stability fixes, how
 1. Download the OTA update file for your device, recommended ESP32 devices is here:
     |`gen2`  | `gen3` |
     |---|---|
-    | [ESP32](https://github.com/philip2809/neato-connected/releases/latest/download/nbs-gen2-esp32.ota.bin) | [ESP32](https://github.com/philip2809/neato-connected/releases/latest/download/nbs-gen3-esp32.ota.bin) |
-    | [ESP32-S3](https://github.com/philip2809/neato-connected/releases/latest/download/nbs-gen2-esp32-s3.ota.bin) | [ESP32-S3](https://github.com/philip2809/neato-connected/releases/latest/download/nbs-gen3-esp32-s3.ota.bin) |
-    | [ESP32-C3](https://github.com/philip2809/neato-connected/releases/latest/download/nbs-gen2-esp32-c3.ota.bin) | [ESP32-C3](https://github.com/philip2809/neato-connected/releases/latest/download/nbs-gen3-esp32-c3.ota.bin) |
+    | [ESP32](https://github.com/philip2809/neato-brainslug/releases/latest/download/nbs-gen2-esp32.ota.bin) | [ESP32](https://github.com/philip2809/neato-brainslug/releases/latest/download/nbs-gen3-esp32.ota.bin) |
+    | [ESP32-S3](https://github.com/philip2809/neato-brainslug/releases/latest/download/nbs-gen2-esp32-s3.ota.bin) | [ESP32-S3](https://github.com/philip2809/neato-brainslug/releases/latest/download/nbs-gen3-esp32-s3.ota.bin) |
+    | [ESP32-C3](https://github.com/philip2809/neato-brainslug/releases/latest/download/nbs-gen2-esp32-c3.ota.bin) | [ESP32-C3](https://github.com/philip2809/neato-brainslug/releases/latest/download/nbs-gen3-esp32-c3.ota.bin) |
 2. Go to the webserver of the device and upload the file under the OTA section, then press "UPDATE"
     ![OTA update](pics/setup/step_6-webserver-ota.png)
 3. Wait for it to update and restart then refresh the page, you should now be on the latest version!
