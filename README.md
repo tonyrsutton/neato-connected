@@ -30,8 +30,8 @@ _Control your Neato vacuum locally with an ESPHome brainslug_
         Beta
       </a>
       <span> | </span>
-      <a href="https://openpetition.org/!wknmd">
-        Sign the petition
+      <a href="https://brainslug.phma.dev">
+        Brainslug Tools
       </a>
 </div>
 
@@ -106,7 +106,7 @@ The reason this works on all Neato robots is because they all have the command i
 
 To get this up and running, you will need to connect to the debug port or USB port on the robot. The XV-series robots have the USB port on the back, the rest has it in the dustbin area, making it inaccessible when using, for these robots we need to connect via the serial debug port, you would also need to do this if you are installing it internally inside the XV-series. So, sadly for this repair you will need to get some extra hardware to get it up and running; however we are happy to help you out any step along the way!
 
-First of all we need to get the version of your robot, do this at the [Version Checker](https://brainslug.phma.dev/version.html)
+First of all we need to get the version of your robot, do this with the [Brainslug Tools](https://brainslug.phma.dev/#/robot)
 
 Since we are parsing the data from the serial interface we need to be on the same verion of the robot firmware, this is what has been confirmed working:
 | `gen2`  | `gen3` |
