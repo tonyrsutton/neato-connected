@@ -60,7 +60,7 @@ Once you have filled this file with your values, save it, and make sure to never
 If you want to add more devices, best practice is to set the api key and ota password in your secrets file. Your wifi password and ssid should also be kept here. Since the esp device will be strapped to, or inside the robot OTA (over the air) updates is quite important for this use case.
 
 ### Config file
-[Download the ESPHome config file](https://github.com/philip2809/neato-brainslug/releases/latest/download/ha_esphome.yaml)
+[Download the ESPHome config file](https://github.com/philip2809/neato-brainslug/releases/latest/download/ha-esphome.yaml)
 
 Once back at the ESPHome main page, click the big green button in the bottom left to add a new device. Read the information, but for now, click "Continue" and either import the file you downloaded, or start with an empty configuration and paste the contents in. Open the file in edit mode in case it does not automatically open in edit mode.
 
